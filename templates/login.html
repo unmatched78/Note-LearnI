@@ -1,0 +1,96 @@
+
+{% block content %}  
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quickask</title>  
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>  
+    <style>  
+        body {  
+            font-family: Arial, sans-serif;  
+            background-color: black;/*#e9ecef*/  
+            margin: 0;  
+            padding: 20px;  
+        }  
+        .message {  
+            color: red;  
+            text-align: center;  
+        }
+        .form1 {  
+            background-color: black;/*#ffffff*/  
+            max-width: 400px;  
+            margin: auto;  
+            padding: 20px;  
+            border-radius: 25px;  
+            box-shadow: 0 4px 10px rgba(255, 105, 0, 1);  
+        }  
+        h2 {  
+            text-align: center;  
+            color: whitesmoke;  
+        }    
+        input[type="text"],  
+        input[type="password"] {  
+            width: 100%;  
+            padding: 12px;  
+            margin-bottom: 15px;  
+            border: 2px solid cyan;  
+            border-radius: 25px;  
+            box-sizing: border-box;  
+            transition: border-color 0.3s;  
+        }  
+        input[type="text"]:focus,  
+        input[type="password"]:focus {  
+            border-color: #007bff;  
+            outline: none;  
+        }  
+        input[type="submit"] {  
+            background-color: #007bff;  
+            color: white;  
+            padding: 12px;  
+            border: none;  
+            border-radius: 25px;  
+            cursor: pointer;  
+            width: 100%;  
+            font-size: 16px;  
+            transition: background-color 0.3s ease;  
+        }  
+        input[type="submit"]:hover {  
+            background-color: #0056b3;  
+        }  
+        .footer {  
+            text-align: center;  
+            margin-top: 20px;  
+            color: #666;
+            font-size: 17px;  
+        }  
+    </style> 
+</head>  
+<body> 
+    <form class="form1" method="POST" action="{% url 'login'%}">  
+        {% csrf_token %}  
+        <h2>Login</h2>   
+        <input type="text" id="username" name="username" placeholder="username.." required>  
+        <input type="password" id="password" name="password" placeholder="password.." required><-- <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+            <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0"/>
+            <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7"/>
+          </svg>--/>  
+        <input type="submit" value="Login">
+        {% if messages %}  
+        {% for message in messages %}  
+            <p class="message">{{ message }}</p>  
+        {% endfor %}  
+    {% endif %}
+        {% if error %}
+        <p style="color: red;">{{ error }}</p>
+        {% endif %}  
+    </form>  
+    <div class="footer">  
+        <p>Don't have an account? <a href="{% url 'signup' %}">Sign up</a></p> <p>  
+            <a href="{% url 'password_reset' %}">Forgot your password? click to reset</a>  
+        </p> 
+    </div>  
+</body>  
+</html>  
+{% endblock %} 
