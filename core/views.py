@@ -204,27 +204,7 @@ class FileUploadView(View):
                 return JsonResponse({"error": str(e)}, status=500)  
 
         return JsonResponse({"error": "Invalid action or missing file."}, status=400)  
-# @method_decorator(login_required(login_url="login"), name='dispatch')
-# class FileUploadView(View):
-#     def post(self, request):
-#         if request.POST.get('action') == 'upload_file' and 'file' in request.FILES:
-#             uploaded_file = request.FILES['file']
-#             file_size_mb = uploaded_file.size / (1024 * 1024)
-#             if file_size_mb > MAX_FILE_SIZE_MB:
-#                 return JsonResponse({"error": f"File exceeds {MAX_FILE_SIZE_MB} MB limit."}, status=400)
-#             text = extract_text_from_file(uploaded_file)
-#             if not text:
-#                 return JsonResponse({"error": "Unsupported file or empty document."}, status=400)
-#             text_chunks = split_text_into_chunks(text)
-#             file_name = uploaded_file.name  # Get the name of the uploaded file  
-#             Document.objects.update_or_create(
-#                 user=request.user,
-#                 title=file_name,
-#                 description=text_chunks,
-#                 file=uploaded_file
-#             )
-#             return JsonResponse({"text_chunks": text_chunks})
-#         return JsonResponse({"error": "Invalid action or missing file."}, status=400)
+
 
 @method_decorator(login_required(login_url="login"), name='dispatch')
 class QuizGenerationView(View):

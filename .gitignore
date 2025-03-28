@@ -2,3 +2,5 @@
 store.txt
 # app.py
 .qodo
+venv
+db.sqlite
