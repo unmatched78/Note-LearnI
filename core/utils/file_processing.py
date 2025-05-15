@@ -2,6 +2,7 @@ import logging
 from PyPDF2 import PdfReader
 from docx import Document as DocxDocument
 from pptx import Presentation
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +41,6 @@ def split_text_into_chunks(text, chunk_size=1000, chunk_overlap=100):
     """
     Split text into smaller chunks using RecursiveCharacterTextSplitter.
     """
-    from langchain.text_splitter import RecursiveCharacterTextSplitter
     splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     chunks = splitter.split_text(text)
     return chunks
