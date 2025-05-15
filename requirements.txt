@@ -1,15 +1,10 @@
-streamlit
 PyPDF2
 python-docx
-mistralai
-langchain
 python-dotenv
 openai
 django
 gunicorn
 pillow
 psycopg2-binary
-django-cors-headers==4.6.0
-qrcode==7.4.2
 requests
 python-pptx
