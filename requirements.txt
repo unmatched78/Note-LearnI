@@ -17,3 +17,4 @@ sqlparse==0.5.1
 virtualenv==20.26.3
 watchfiles
 whitenoise
+django-cloudinary-storage
