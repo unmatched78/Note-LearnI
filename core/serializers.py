@@ -3,7 +3,7 @@ from .models import (
     Module, Document, Notes, YoutubeNote,
     Quiz, QuizAttempt, FailedQuestion
 )
-
+from cloudinary.forms import CloudinaryFileField
 class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Document
