@@ -146,12 +146,7 @@ SESSION_COOKIE_AGE = 1800  # Session lasts for 30 minutes
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Keep session even if browser is closed (if desired)
 SESSION_SAVE_EVERY_REQUEST = False  # Refresh session on each request
 
-#cloudinary settings
-cloudinary.config(
-    cloud_name = 'dmk7zhp0e',        # Replace with your cloud name
-    api_key = '227189412786855',              # Replace with your API key
-    api_secret = '0qzGFhzREtnG-aDfq4P74jFDA5Q'         # Replace with your API secret
-)
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
