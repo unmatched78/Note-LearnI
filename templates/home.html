@@ -1,184 +1,14 @@
-{% comment %} <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Quickask</title>
-  <style>
-    /* Reset & general styles */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      background-color: #000;
-      color: #f0f0f0;
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    
-    /* Header styling */
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    
-    header h2 {
-      font-size: 24px;
-    }
-    
-    header a {
-      text-decoration: none;
-      color: #f0f0f0;
-      background-color: red;
-      padding: 10px 20px;
-      border-radius: 4px;
-      transition: background-color 0.3s ease;
-    }
-    
-    header a:hover {
-      background-color: #555;
-    }
-    
-    /* Section styling */
-    section {
-      background: #111;
-      padding: 20px;
-      margin-bottom: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-    }
-    
-    section h3 {
-      margin-bottom: 10px;
-    }
-    
-    form label {
-      display: block;
-      margin-bottom: 5px;
-    }
-    
-    form input[type="file"],
-    form textarea,
-    form input[type="number"] {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 10px;
-      border: none;
-      border-radius: 4px;
-    }
-    
-    form button {
-      padding: 10px 20px;
-      background-color: #333;
-      color: #f0f0f0;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-    
-    form button:hover {
-      background-color: #555;
-    }
-    
-    #uploadResponse, .feedback {
-      margin-top: 10px;
-      font-weight: bold;
-    }
-    
-    /* Quiz feedback styling */
-    .feedback-item {
-      margin-bottom: 15px;
-      padding: 10px;
-      border: 1px solid #333;
-      border-radius: 4px;
-      background-color: #222;
-    }
-    
-    /* Hide quiz section initially */
-    #quiz-container {
-      display: none;
-    }
-    
-    /* Responsive adjustments */
-    @media (max-width: 600px) {
-      body {
-        padding: 10px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h2>Welcome, {{ request.user.username }}</h2>
-    <a href="{% url 'logout' %}">Logout</a>
-  </header>
-  
-  <!-- File Upload Section -->
-  <section id="file-upload">
-    <h3>Upload A Study Material</h3>
-    <form id="uploadForm" method="post" enctype="multipart/form-data" action="{% url 'file_upload' %}">
-      {% csrf_token %}
-      <input type="hidden" name="action" value="upload_file">
-      <label for="file">Choose file (PDF, DOCX, TXT, PPTX):</label>
-      <input type="file" name="file" id="file" required>
-      <button type="submit">Upload</button>
-    </form>
-    <div id="uploadResponse"></div>
-  </section>
-  
-  <!-- Quiz Section Container (hidden until file upload success) -->
-  <div id="quiz-container">
-    <!-- Include the modular quiz section -->
-    {% include "quiz_section.html" %}
-  </div>
-  
-  <script>
-    // Handle file upload response:
-    // Save text_chunks for quiz generation and show quiz section on successful upload.
-    document.getElementById('uploadForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const formData = new FormData(this);
-      fetch("{% url 'file_upload' %}", {
-        method: 'POST',
-        body: formData,
-      })
-      .then(response => response.json())
-      .then(data => {
-        const uploadResponse = document.getElementById('uploadResponse');
-        if (data.error) {
-          uploadResponse.innerText = data.error;
-          uploadResponse.style.color = 'red';
-        } else {
-          uploadResponse.innerText = 'File processed successfully.';
-          uploadResponse.style.color = 'green';
-          // Save text chunks for quiz generation.
-          document.getElementById('text_chunks').value = JSON.stringify(data.text_chunks);
-          // Show the quiz section container.
-          document.getElementById('quiz-container').style.display = 'block';
-        }
-      })
-      .catch(error => {
-        console.error('Error in file upload:', error);
-        const uploadResponse = document.getElementById('uploadResponse');
-        uploadResponse.innerText = 'An error occurred during file upload.';
-        uploadResponse.style.color = 'red';
-      });
-    });
-  </script>
-</body>
-</html> {% endcomment %}
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Quickask</title>
   <style>
-    /* Reset & general styles */
+    /* Reset & general styles 
     * {
       margin: 0;
       padding: 0;
@@ -192,7 +22,7 @@
       padding: 20px;
     }
     
-    /* Header styling */
+    /* Header styling 
     header {
       display: flex;
       justify-content: space-between;
@@ -217,7 +47,7 @@
       background-color: #555;
     }
     
-    /* Section styling */
+    /* Section styling 
     section {
       background: #111;
       padding: 20px;
@@ -264,7 +94,7 @@
       font-weight: bold;
     }
     
-    /* Quiz feedback styling */
+    /* Quiz feedback styling 
     .feedback-item {
       margin-bottom: 15px;
       padding: 10px;
@@ -273,17 +103,17 @@
       background-color: #222;
     }
     
-    /* Hide quiz section initially */
+    /* Hide quiz section initially 
     #quiz-container {
       display: none;
     }
     
-    /* Responsive adjustments */
+    /* Responsive adjustments 
     @media (max-width: 600px) {
       body {
         padding: 10px;
       }
-    }
+    }*/
   </style>
 </head>
 <body>
@@ -360,3 +190,4 @@
   </script>
 </body>
 </html>
+{% endblock %}

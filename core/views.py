@@ -1,323 +1,256 @@
-import json
-import logging
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
-from django.urls import reverse
-from django.views import View
-from django.contrib import auth, messages
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-from django.contrib.auth.tokens import default_token_generator
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str
-from django.core.mail import send_mail
-from django.conf import settings
-from django.contrib.auth.models import User
-from .authemail import send_authentication_email 
-# Import our models
-from .models import *
-# Import our utility functions
+from rest_framework import viewsets, status, generics, permissions
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.response import Response
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework.decorators import action
+from django.shortcuts import get_object_or_404
+from youtube_transcript_api import YouTubeTranscriptApi
+from .models import Module, Document, Notes, YoutubeNote, Quiz, QuizAttempt, FailedQuestion
+from .serializers import (
+    ModuleSerializer, DocumentSerializer, NotesSerializer,
+    YoutubeNoteSerializer, QuizSerializer, QuizAttemptSerializer
+)
 from .utils.file_processing import extract_text_from_file, split_text_into_chunks
-from .utils.quiz_utils import generate_questions_from_text, evaluate_answers_logic
-
+from .utils.quiz_utils import generate_questions_from_text, evaluate_answers_logic, generate_summary
+import logging
+import os
+import json
 logger = logging.getLogger(__name__)
-MAX_FILE_SIZE_MB = 19
-class PasswordResetConfirmView(View):  
 
-    def get(self, request, uidb64, token):  
-        try:  
-            uid = force_str(urlsafe_base64_decode(uidb64))  
-            user = User.objects.get(pk=uid)  
-            if default_token_generator.check_token(user, token):  
-                form = CustomPasswordResetForm()  
-                return render(request, 'password_reset_confirm.html', {'form': form})  
-            else:  
-                messages.error(request, "Password reset link is invalid.")  
-                return redirect('password_reset')  
-        except (TypeError, ValueError, OverflowError, User.DoesNotExist):  
-            messages.error(request, "Password reset link is invalid.")  
-            return redirect('password_reset')  
+# JWT Login Endpoint
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        data['user'] = {'id': self.user.id, 'username': self.user.username, 'email': self.user.email}
+        return data
 
-    def post(self, request, uidb64, token):  
-        try:  
-            uid = force_str(urlsafe_base64_decode(uidb64))  
-            user = User.objects.get(pk=uid)  
-        except (TypeError, ValueError, OverflowError, User.DoesNotExist):  
-            user = None  
+class MyTokenObtainPairView(TokenObtainPairView):
+    permission_classes = [permissions.AllowAny]
+    serializer_class = MyTokenObtainPairSerializer
 
-        if user is not None and default_token_generator.check_token(user, token):  
-            form = CustomPasswordResetForm(request.POST)  
-            if form.is_valid():  
-                user.set_password(form.cleaned_data['new_password1'])  # Use set_password to hash the password  
-                user.save()  # Save the new password  
-                messages.success(request, "Your password has been reset successfully.")  
-                return redirect('login')  # Redirect to the login page  
-            else:  
-                messages.error(request, "Please correct the error above.")  # Notify errors  
+# Module CRUD
+class ModuleViewSet(viewsets.ModelViewSet):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ModuleSerializer
+    queryset = Module.objects.all()
 
-            return render(request, 'password_reset_confirm.html', {'form': form})  
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
-        else:  
-            messages.error(request, "Password reset link is invalid.")  
-            return redirect('password_reset') 
-class PasswordResetView(View):  
+# Document Upload & CRUD
+class DocumentViewSet(viewsets.ModelViewSet):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = DocumentSerializer
+    parser_classes = [MultiPartParser, FormParser]
 
-    def get(self, request):  
-        return render(request, 'password_reset.html')  
+    def get_queryset(self):
+        return Document.objects.filter(user=self.request.user)
 
-    def post(self, request):  
-        email = request.POST.get('email')  
+    def perform_create(self, serializer):
+        document = serializer.save(user=self.request.user)
+        file = document.file
+        text = extract_text_from_file(file)
+        if text:
+            chunks = split_text_into_chunks(text)
+            document.chunks = chunks
+            document.description = text  # Store full text for display
+            document.save()
+        return document
 
-        # Check if the email exists in the database  
-        try:  
-            user = User.objects.get(email=email)  
-        except User.DoesNotExist:  
-            messages.error(request, "No account found with that email address.")  
-            return redirect('password_reset')  # Redirect back to the password reset page  
+    @action(detail=True, methods=['get'])
+    def chunks(self, request, pk=None):
+        document = self.get_object()
+        return Response(document.chunks)
+# Notes CRUD
+class NotesViewSet(viewsets.ModelViewSet):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = NotesSerializer
 
-        # Generate password reset token and encode user ID  
-        token = default_token_generator.make_token(user)  
-        uid = urlsafe_base64_encode(force_bytes(user.pk))  
-        reset_link = request.build_absolute_uri(  
-            reverse('password_reset_confirm', kwargs={'uidb64': uid, 'token': token})  
-        )   
-        subject = 'Password Reset Requested'  
-    
-        # Create a plaintext message  
-        # message = (  
-        #     f"Hello {user.get_full_name()},\n\n"  
-        #     "You requested a password reset. Please use the link below to reset your password:\n\n"  
-        #     f"{reset_link}\n\n"  
-        #     "If you did not request this reset, please ignore this email.\n\n"  
-        #     "Best regards,\n"  
-        #     "Teacher Marking System Team"  
-        # )  
-        message = (  
-        f"Hello {user.get_full_name()},\n\n"  
-        "You requested a password reset. To reset your password, please follow the link below:\n\n"  
-        f"========================= RESET YOUR PASSWORD =========================\n\n"  
-        f"{reset_link}\n\n"  
-        "======================================================================\n\n"  
-        "Keep in mind that this is a one time link and will last for only 30 minutes.\n"
-        "If you did not request this reset, please ignore this email.\n\n"  
-        "Thank you,\n"  
-        "Best regards,\n"  
-        "Teacher Marking System Team"  
-        )
-        
-        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])  
-    
-        messages.success(request, "Password reset link sent. Please check your email.")   
-        return redirect('password_reset')  # Optionally redirect back to a confirmation page
-def signup(request):  
-    if request.method == 'POST':  
-        username = request.POST['username']  
-        email = request.POST['email']  
-        password = request.POST['password']  
-        
-        if User.objects.filter(username=username).exists():  
-            messages.error(request, 'Username already exists.')  
-            return redirect('signup')
-        if User.objects.filter(email=email).exists():  
-            messages.error(request, 'email already exists.')  
-            return redirect('signup')  
-        
-        user = User(username=username, email=email)  
-        user.set_password(password)  
-        #user.is_active = False  # Deactivate account until it is confirmed  
-        user.save()  
-        send_authentication_email(user, request)  
-        messages.success(request, 'Registration successful!')  
-        return redirect('home')  
-    
-    return render(request, 'signup.html')
-# ---------------------------
-# Password Reset Views
-# ---------------------------
+    def get_queryset(self):
+        return Notes.objects.filter(module__user=self.request.user)
+class YoutubeNoteViewSet(viewsets.ModelViewSet):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = YoutubeNoteSerializer
 
-# ---------------------------
-# Authentication Views
-# ---------------------------
-def login_view(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        usernamecheck=User.objects.filter(username=username).exists()
-        if not usernamecheck:
-            messages.error(request, 'Username does not exist! Please please enter a valid one!')
-            return redirect('login')
-        user = auth.authenticate(request, username=username, password=password)
-        if user is not None:
-            auth.login(request, user)
-            return redirect('home')
-        else:
-            messages.error(request, 'Invalid credentials! Please check your password.')
-            return redirect('login')
-    return render(request, 'login.html')
+    def get_queryset(self):
+        logger.debug("Fetching YoutubeNote queryset for user: %s", self.request.user)
+        return YoutubeNote.objects.filter(module__user=self.request.user)
 
-def logout_view(request):
-    auth.logout(request)
-    return redirect('login')
-
-# ---------------------------
-# Home and Quiz-Related Views
-# ---------------------------
-@method_decorator(login_required(login_url="login"), name='dispatch')
-class HomeView(View):
-    def get(self, request):
-        logger.debug("Home view accessed")
-        return render(request, "home.html")
- 
-
-@method_decorator(login_required(login_url="login"), name='dispatch')  
-class FileUploadView(View):  
-    def post(self, request):  
-
-        if request.POST.get('action') == 'upload_file' and 'file' in request.FILES:  
-            uploaded_file = request.FILES['file']  
-            file_size_mb = uploaded_file.size / (1024 * 1024)  
-            
-            if file_size_mb > MAX_FILE_SIZE_MB:  
-                return JsonResponse({"error": f"File exceeds {MAX_FILE_SIZE_MB} MB limit."}, status=400)  
-            
-            text = extract_text_from_file(uploaded_file)  
-            if not text:  
-                return JsonResponse({"error": "Unsupported file or empty document."}, status=400)  
-
-            text_chunks = split_text_into_chunks(text)  
-            file_name = uploaded_file.name  # Get the name of the uploaded file   
-
-            try:  
-                # Join text_chunks to save it as a single string  
-                description = "\n".join(text_chunks) if isinstance(text_chunks, list) else text_chunks  
-
-                document, created = Document.objects.update_or_create(  
-                    user=request.user,  
-                    title=file_name,  
-                    defaults={  
-                        'description': description,  
-                        'file': uploaded_file  
-                    }  
-                )  
-                return JsonResponse({"text_chunks": text_chunks})  
-            except Exception as e:  
-                return JsonResponse({"error": str(e)}, status=500)  
-
-        return JsonResponse({"error": "Invalid action or missing file."}, status=400)  
-
-
-@method_decorator(login_required(login_url="login"), name='dispatch')
-class QuizGenerationView(View):
-    def post(self, request):
+    @action(detail=True, methods=['get'])
+    def transcript_chunks(self, request, pk=None):
         try:
-            text_chunks = json.loads(request.POST.get("text_chunks", "[]"))
+            youtube_note = self.get_object()
+            logger.debug("Fetching transcript chunks for youtube_note ID: %s", pk)
+            text = youtube_note.transcription or ''
+            chunks = split_text_into_chunks(text)
+            logger.debug("Returning %d chunks", len(chunks))
+            return Response(chunks)
+        except YoutubeNote.DoesNotExist:
+            logger.error("YoutubeNote with ID %s not found", pk)
+            return Response({"error": "YouTube note not found"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            logger.error("Error loading text_chunks JSON: %s", e)
-            return JsonResponse({"error": "Invalid text_chunks format"}, status=400)
-        prompt = request.POST.get("prompt", "")
-        try:
-            num_questions = int(request.POST.get("num_questions"))
-        except Exception as e:
-            logger.error("Error parsing num_questions: %s", e)
-            #num_questions = 2
-        # # Assuming you have a valid Document instance (for example, the most recently uploaded document)
-        document_instance = Document.objects.filter(user=request.user).last()
-        if not document_instance:
-           return JsonResponse({"error": "No associated document found."}, status=400)
+            logger.error("Error in transcript_chunks: %s", e)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @action(detail=True, methods=['post'])
+    def transcribe(self, request, pk=None):
+        try:
+            youtube_note = self.get_object()
+            logger.debug("Transcribing youtube_note ID: %s, URL: %s", pk, youtube_note.youtubeVideoUrl)
+            if not youtube_note.youtubeVideoUrl:
+                return Response({"error": "No YouTube URL provided"}, status=status.HTTP_400_BAD_REQUEST)
+            video_id = youtube_note.youtubeVideoUrl.split('v=')[1].split('&')[0]
+            transcript = YouTubeTranscriptApi.get_transcript(video_id)
+            text = ' '.join([t['text'] for t in transcript])
+            youtube_note.transcription = text
+            youtube_note.save()
+            logger.debug("Transcription saved for youtube_note ID: %s", pk)
+            return Response({"transcription": text})
+        except YoutubeNote.DoesNotExist:
+            logger.error("YoutubeNote with ID %s not found", pk)
+            return Response({"error": "YouTube note not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error("Transcription error for youtube_note ID %s: %s", pk, e)
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['post'])
+    def summarize(self, request, pk=None):
+        try:
+            youtube_note = self.get_object()
+            logger.debug("Summarizing youtube_note ID: %s", pk)
+            if not youtube_note.transcription:
+                return Response({"error": "No transcription available"}, status=status.HTTP_400_BAD_REQUEST)
+            summary = generate_summary(youtube_note.transcription)
+            if summary is None:
+                logger.error("Summary generation returned None for youtube_note ID %s", pk)
+                return Response({"error": "Failed to generate summary"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            youtube_note.summary = summary
+            youtube_note.save()
+            logger.debug("Summary saved for youtube_note ID %s", pk)
+            return Response({"summary": summary})
+        except YoutubeNote.DoesNotExist:
+            logger.error("YoutubeNote with ID %s not found", pk)
+            return Response({"error": "YouTube note not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error("Summarization error for youtube_note ID %s: %s", pk, e)
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+# ... other imports and views ...
+
+class QuizViewSet(viewsets.ModelViewSet):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = QuizSerializer
+
+    def get_queryset(self):
+        return Quiz.objects.filter(generated_by=self.request.user)
+class QuizGenerationAPIView(generics.CreateAPIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = QuizSerializer
+
+    def create(self, request, *args, **kwargs):
+        logger.debug("Received quiz generation request: %s", request.data)
+        document_id = request.data.get('document_id')
+        document = get_object_or_404(Document, id=document_id, user=request.user)
+        text_chunks = document.chunks
+        prompt = request.data.get('prompt', '')
+        num_questions = int(request.data.get('num_questions', 5))
         questions = generate_questions_from_text(text_chunks, prompt, num_questions)
-        if questions:
-            quiz = Quiz.objects.create(
-                generated_by=request.user,
-                quiz_title="Generated Quiz",
-                questions=questions,
-                document=document_instance#None,  # Adjust if you later tie this to a Document
-            )
-            return JsonResponse({"questions": questions, "quiz_id": quiz.id})
-        else:
-            return JsonResponse({"error": "Failed to generate questions."}, status=500)
+        # Ensure questions is an array
+        if isinstance(questions, dict) and 'questions' in questions:
+            questions = questions['questions']
+        logger.debug("Generated questions: %s", questions)
+        quiz = Quiz.objects.create(
+            generated_by=request.user,
+            quiz_title=request.data.get('quiz_title', 'Generated Quiz'),
+            questions=questions,  # Save the array directly
+            document=document
+        )
+        serializer = self.get_serializer(quiz)
+        logger.debug("Quiz created: %s", serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+# # Quiz Generation API
+# class QuizGenerationAPIView(generics.CreateAPIView):
+#     authentication_classes = [JWTAuthentication]
+#     permission_classes = [permissions.IsAuthenticated]
+#     serializer_class = QuizSerializer
 
-@method_decorator(login_required(login_url="login"), name='dispatch')
-class QuizSubmitView(View):
-    def post(self, request):
-        try:
-            quiz_id = int(request.POST.get("quiz_id"))
-        except Exception as e:
-            logger.error("Error parsing quiz_id: %s", e)
-            return JsonResponse({"error": "Invalid quiz_id"}, status=400)
-        try:
-            student_answers = json.loads(request.POST.get("student_answers", "{}"))
-        except Exception as e:
-            logger.error("Error parsing student_answers JSON: %s", e)
-            return JsonResponse({"error": "Invalid student_answers format"}, status=400)
+#     def create(self, request, *args, **kwargs):
+#         logger.debug("Received quiz generation request: %s", request.data)
+#         document_id = request.data.get('document_id')
+#         document = get_object_or_404(Document, id=document_id, user=request.user)
+#         text_chunks = document.chunks
+#         prompt = request.data.get('prompt', '')
+#         num_questions = int(request.data.get('num_questions', 5))
+#         questions = generate_questions_from_text(text_chunks, prompt, num_questions)
+#         logger.debug("Generated questions: %s", questions)
+#         quiz = Quiz.objects.create(
+#             generated_by=request.user,
+#             quiz_title=request.data.get('quiz_title', 'Generated Quiz'),
+#             questions=questions,
+#             document=document
+#         )
+#         serializer = self.get_serializer(quiz)
+#         logger.debug("Quiz created: %s", serializer.data)
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        quiz = get_object_or_404(Quiz, id=quiz_id)
-        questions = quiz.questions.get("questions", quiz.questions)
-        feedback, total_correct, failed_questions = evaluate_answers_logic(questions, student_answers)
+# Quiz Submission API
+class QuizSubmitAPIView(generics.GenericAPIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = QuizAttemptSerializer
 
-        quiz_attempt = QuizAttempt.objects.create(
+    def post(self, request, *args, **kwargs):
+        quiz = get_object_or_404(Quiz, id=request.data.get('quiz'))
+        answers = request.data.get('responses', {})
+        feedback, total_correct, failed = evaluate_answers_logic(quiz.questions, answers)
+
+        attempt = QuizAttempt.objects.create(
             quiz=quiz,
             student=request.user,
-            responses=student_answers,
+            responses=answers,
             score=total_correct,
-            total_questions=len(questions),
+            total_questions=len(quiz.questions)
         )
-
-        for item in failed_questions:
+        for item in failed:
             FailedQuestion.objects.create(
-                quiz_attempt=quiz_attempt,
-                question_data={
-                    "question": item["question"],
-                    "options": item["options"],
-                    "correct_answer": item["correct_answer"],
-                },
-                selected_answer=item["student_answer"],
+                quiz_attempt=attempt,
+                question_data=item,
+                selected_answer=item.get('student_answer')
             )
-        return JsonResponse({
-            "feedback": feedback,
-            "total_correct": total_correct,
-            "total_questions": len(questions),
-        })
 
+        serializer = self.get_serializer(attempt)
+        return Response({**serializer.data, 'feedback': feedback}, status=status.HTTP_201_CREATED)
 
+# Chat API
+class ChatAPIView(generics.GenericAPIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    def post(self, request, *args, **kwargs):
+        prompt = request.data.get('prompt')
+        context = request.data.get('context', [])
+        if not prompt:
+            return Response({"error": "No prompt provided"}, status=400)
+        full_prompt = "Context:\n" + "\n".join(context) + "\n\nQuestion: " + prompt
+        try:
+            from openai import OpenAI
+            client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+            response = client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": full_prompt},
+                ]
+            )
+            reply = response.choices[0].message.content
+            return Response({"reply": reply})
+        except Exception as e:
+            logger.error("Chat error: %s", e)
+            return Response({"error": str(e)}, status=400)

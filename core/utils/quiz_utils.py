@@ -92,3 +92,21 @@ def evaluate_answers_logic(questions, student_answers):
         else:
             total_correct += 1
     return feedback, total_correct, failed_questions
+
+
+def generate_summary(text):
+    prompt = "Summarize the following text:\n" + text
+    try:
+        client = OpenAI(api_key=openai_api_key)
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant that summarizes text."},
+                {"role": "user", "content": prompt},
+            ]
+        )
+        summary = response.choices[0].message.content
+        return summary
+    except Exception as e:
+        logger.error("Error generating summary: %s", e)
+        return None
