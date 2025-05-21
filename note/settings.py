@@ -59,7 +59,7 @@ ROOT_URLCONF = 'note.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [ ],
+        'DIRS': [ ],#deleted templates
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
