@@ -22,3 +22,4 @@ requests
 django-role-permissions
 daphne 
 watchfiles
+whitenoise
