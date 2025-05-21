@@ -149,7 +149,7 @@ SESSION_SAVE_EVERY_REQUEST = False  # Refresh session on each request
 #cloudinary settings
 cloudinary.config(
     cloud_name = 'dmk7zhp0e',        # Replace with your cloud name
-    api_key = '',              # Replace with your API key
+    api_key = '227189412786855',              # Replace with your API key
     api_secret = ''         # Replace with your API secret
 )
 # Internationalization
