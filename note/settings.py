@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "rest_framework_simplejwt.token_blacklist",
-    "cloudinary"
+    "cloudinary",
+    'cloudinary_storage',
 ]
 
 MIDDLEWARE = [
@@ -146,6 +147,12 @@ SESSION_COOKIE_AGE = 1800  # Session lasts for 30 minutes
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Keep session even if browser is closed (if desired)
 SESSION_SAVE_EVERY_REQUEST = False  # Refresh session on each request
 
+#cloudinary
+# Use Cloudinary for media storage
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+# Optional: Define resource type for documents
+CLOUDINARY_STORAGE['RESOURCE_TYPE'] = 'raw'  # For non-image files like PDFs
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
