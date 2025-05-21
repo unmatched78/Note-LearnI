@@ -4,6 +4,7 @@ langchain
 python-dotenv
 openai
 django
+cloudinary
 gunicorn
 pillow
 psycopg2-binary
