@@ -25,7 +25,7 @@ class Document(Timer):
     module = models.ForeignKey(Module, on_delete=models.CASCADE, null=True, blank=True, related_name='documents')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
-    file = CloudinaryField('documents')#made it cloudinaryfiled
+    file = CloudinaryField('documents', resource_type='raw')#made it cloudinaryfiled
     chunks = models.JSONField(default=list, blank=True)  # Added to store chunks
     description = models.TextField(blank=True, null=True)
 
