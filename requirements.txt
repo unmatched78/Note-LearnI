@@ -9,15 +9,10 @@ pillow
 psycopg2-binary
 requests
 python-pptx
-python-dotenv
-django
 djangorestframework 
 djangorestframework-simplejwt
-gunicorn==21.2.0
-psycopg2-binary
 django-cors-headers==4.6.0
 sqlparse==0.5.1
 virtualenv==20.26.3
-requests
 watchfiles
 whitenoise
