@@ -147,7 +147,11 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Keep session even if browser is close
 SESSION_SAVE_EVERY_REQUEST = False  # Refresh session on each request
 
 #cloudinary settings
-
+cloudinary.config(
+    cloud_name = '',        # Replace with your cloud name
+    api_key = '',              # Replace with your API key
+    api_secret = ''         # Replace with your API secret
+)
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
