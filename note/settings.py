@@ -148,11 +148,19 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Keep session even if browser is close
 SESSION_SAVE_EVERY_REQUEST = False  # Refresh session on each request
 
 #cloudinary
+# Cloudinary configuration
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'dmk7zhp0e',
+    'API_KEY': '227189412786855',
+    'API_SECRET': '0qzGFhzREtnG-aDfq4P74jFDA5Q',
+    'RESOURCE_TYPE': 'raw',  # For non-image files like PDFs
+}
+
 # Use Cloudinary for media storage
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # Optional: Define resource type for documents
-CLOUDINARY_STORAGE['RESOURCE_TYPE'] = 'raw'  # For non-image files like PDFs
+#CLOUDINARY_STORAGE['RESOURCE_TYPE'] = 'raw'  # For non-image files like PDFs
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
