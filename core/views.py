@@ -40,27 +40,44 @@ class ModuleViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-# Document Upload & CRUD
+
 class DocumentViewSet(viewsets.ModelViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = DocumentSerializer
-    parser_classes = [MultiPartParser, FormParser]
 
     def get_queryset(self):
-        return Document.objects.filter(user=self.request.user)
+        return Document.objects.filter(module__user=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            file = request.FILES.get('file')
+            if file:
+                # Extract text and file name before uploading to Cloudinary
+                text, file_name = extract_text_from_file(file)
+                if text:
+                    chunks = split_text_into_chunks(text)
+                    serializer.validated_data['chunks'] = chunks
+                    serializer.validated_data['description'] = text[:10]  # Optional: store first 500 chars
+                else:
+                    logger.warning("No text extracted from file: %s", file_name)
+                serializer.validated_data['file_name'] = file_name
+            else:
+                logger.warning("No file provided in the request")
+                serializer.validated_data['file_name'] = ''
+
+            # Save the document (triggers Cloudinary upload)
+            self.perform_create(serializer)
+            logger.debug("Document created with file URL: %s", serializer.data['file'])
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        logger.error("Document creation failed: %s", serializer.errors)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def perform_create(self, serializer):
-        document = serializer.save(user=self.request.user)
-        file = document.file
-        text = extract_text_from_file(file)
-        if text:
-            chunks = split_text_into_chunks(text)
-            document.chunks = chunks
-            document.description = text  # Store full text for display
-            document.save()
-        return document
-
+        # Set the user to the authenticated user
+        serializer.save(user=self.request.user)
     @action(detail=True, methods=['get'])
     def chunks(self, request, pk=None):
         document = self.get_object()
@@ -175,30 +192,7 @@ class QuizGenerationAPIView(generics.CreateAPIView):
         serializer = self.get_serializer(quiz)
         logger.debug("Quiz created: %s", serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-# # Quiz Generation API
-# class QuizGenerationAPIView(generics.CreateAPIView):
-#     authentication_classes = [JWTAuthentication]
-#     permission_classes = [permissions.IsAuthenticated]
-#     serializer_class = QuizSerializer
 
-#     def create(self, request, *args, **kwargs):
-#         logger.debug("Received quiz generation request: %s", request.data)
-#         document_id = request.data.get('document_id')
-#         document = get_object_or_404(Document, id=document_id, user=request.user)
-#         text_chunks = document.chunks
-#         prompt = request.data.get('prompt', '')
-#         num_questions = int(request.data.get('num_questions', 5))
-#         questions = generate_questions_from_text(text_chunks, prompt, num_questions)
-#         logger.debug("Generated questions: %s", questions)
-#         quiz = Quiz.objects.create(
-#             generated_by=request.user,
-#             quiz_title=request.data.get('quiz_title', 'Generated Quiz'),
-#             questions=questions,
-#             document=document
-#         )
-#         serializer = self.get_serializer(quiz)
-#         logger.debug("Quiz created: %s", serializer.data)
-#         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 # Quiz Submission API
 class QuizSubmitAPIView(generics.GenericAPIView):

@@ -5,7 +5,8 @@ from .models import (
 )
 from cloudinary.forms import CloudinaryFileField
 class DocumentSerializer(serializers.ModelSerializer):
-    file = serializers.CharField()  # CloudinaryField stores a URL string
+    #file = serializers.CharField()  # CloudinaryField stores a URL string in the models
+    file = serializers.FileField()
     class Meta:
         model = Document
         fields = ['id', 'module', 'title', 'file', 'description','chunks', 'created_at', 'updated_at']
