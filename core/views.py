@@ -157,7 +157,6 @@ class YoutubeNoteViewSet(viewsets.ModelViewSet):
         except Exception as e:
             logger.error("Summarization error for youtube_note ID %s: %s", pk, e)
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-# ... other imports and views ...
 
 class QuizViewSet(viewsets.ModelViewSet):
     authentication_classes = [JWTAuthentication]
