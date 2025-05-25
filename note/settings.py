@@ -93,9 +93,6 @@ DATABASES = {
         'PASSWORD': 'npg_Igm8kvE1TYFH',  
         'HOST': 'ep-mute-forest-a1lcex52-pooler.ap-southeast-1.aws.neon.tech',  
         'PORT': '',  # Leave this empty for default PostgreSQL port  
-        # 'OPTIONS': {  
-        #     'sslmode': 'require',  
-        # }  
     }  
 }  
 LOGGING = {
