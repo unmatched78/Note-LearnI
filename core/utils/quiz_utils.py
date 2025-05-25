@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 logger = logging.getLogger(__name__)
-# Set your OpenAI API key (you may want to move this to your settings)
+# Set your OpenAI API key 
 
 openai_api_key = os.getenv('OPENAI_API_KEY')
 
