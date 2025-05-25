@@ -10,7 +10,7 @@ router.register(r'modules', ModuleViewSet, basename='module')
 router.register(r'documents', DocumentViewSet, basename='document')
 router.register(r'notes', NotesViewSet, basename='notes')
 router.register(r'youtube-notes', YoutubeNoteViewSet, basename='youtube-note')
-router.register(r'quiz', QuizViewSet,  basename='quiz')  # Added
+router.register(r'quiz', QuizViewSet,  basename='quiz') 
 urlpatterns = [
     path('api/quiz/generate/', QuizGenerationAPIView.as_view(), name='quiz-generate'),
     path('api/quiz/submit/',   QuizSubmitAPIView.as_view(),  name='quiz-submit'),
@@ -21,8 +21,6 @@ urlpatterns = [
     path('api/youtube-notes/<int:pk>/summarize/', YoutubeNoteViewSet.as_view({'post': 'summarize'}), name='youtube-note-summarize'),
     # Other endpoints
     path('api/', include(router.urls)),
-    #path('', include(router.urls)),
-    # JWT:
     path('api/auth/token/login/',   MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/auth/token/refresh/', TokenRefreshView.as_view(),     name='token_refresh'),
 ]
