@@ -52,7 +52,7 @@ class YoutubeNote(Timer):
     document = models.ForeignKey(Document, on_delete=models.CASCADE, null=True, related_name='youtube_notes')
     summary = models.TextField(null=True)
     transcription = models.TextField(null=True)
-    name = models.CharField(max_length=100, blank=True)  # Remove default
+    name = models.CharField(max_length=100, blank=True)  
     youtubeVideoUrl = models.URLField(null=True)
 
     def save(self, *args, **kwargs):
