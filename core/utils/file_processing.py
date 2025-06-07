@@ -36,11 +36,20 @@ def extract_text_from_file(uploaded_file):
         logger.error("Error extracting text from file: %s", e)
     return None
 
+# def split_text_into_chunks(text, chunk_size=1000, chunk_overlap=100):
+#     """
+#     Split text into smaller chunks using RecursiveCharacterTextSplitter.
+#     """
+#     from langchain.text_splitter import RecursiveCharacterTextSplitter
+#     splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+#     chunks = splitter.split_text(text)
+#     return chunks
+# utils/file_processing.py
+
 def split_text_into_chunks(text, chunk_size=1000, chunk_overlap=100):
-    """
-    Split text into smaller chunks using RecursiveCharacterTextSplitter.
-    """
     from langchain.text_splitter import RecursiveCharacterTextSplitter
-    splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
-    chunks = splitter.split_text(text)
-    return chunks
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap
+    )
+    return splitter.split_text(text)

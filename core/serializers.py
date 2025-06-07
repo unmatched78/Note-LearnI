@@ -1,51 +1,52 @@
+# serializers.py
 from rest_framework import serializers
-from .models import (
-    Module, Document, Notes, YoutubeNote,
-    Quiz, QuizAttempt, FailedQuestion
-)
-from cloudinary.forms import CloudinaryFileField
+from .models import Document, Quiz, QuizAttempt, FailedQuestion
+
 class DocumentSerializer(serializers.ModelSerializer):
-    file = serializers.FileField()
     class Meta:
         model = Document
-        fields = ['id', 'module', 'title', 'file', 'description','chunks', 'created_at', 'updated_at']
-        read_only_fields = ['id', 'created_at', 'updated_at']
-
-class NotesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Notes
-        fields = ['id', 'module', 'document', 'notes', 'name', 'created_at', 'updated_at']
-        read_only_fields = ['id', 'name', 'created_at', 'updated_at']
-
-class YoutubeNoteSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = YoutubeNote
-        fields = ['id', 'module', 'document', 'summary', 'transcription', 'youtubeVideoUrl', 'name', 'created_at', 'updated_at']
-        read_only_fields = ['id', 'name', 'created_at', 'updated_at']
+        fields = ["id", "user", "title", "file", "description", "created_at"]
+        read_only_fields = ["id", "user", "description", "created_at"]
 
 class QuizSerializer(serializers.ModelSerializer):
     class Meta:
         model = Quiz
-        fields = ['id', 'document', 'quiz_title', 'questions', 'created_at', 'updated_at']
-        read_only_fields = ['id', 'created_at', 'updated_at']
-
-class QuizAttemptSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = QuizAttempt
-        fields = ['id', 'quiz', 'responses', 'score', 'total_questions', 'created_at', 'updated_at']
-        read_only_fields = ['id', 'score', 'total_questions', 'created_at', 'updated_at']
+        fields = ["id", "document", "generated_by", "quiz_title", "questions", "created_at"]
+        read_only_fields = ["id", "generated_by", "questions", "created_at"]
 
 class FailedQuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = FailedQuestion
-        fields = ['id', 'quiz_attempt', 'question_data', 'selected_answer', 'created_at', 'updated_at']
-        read_only_fields = ['id', 'created_at', 'updated_at']
-class ModuleSerializer(serializers.ModelSerializer):
-    documents      = DocumentSerializer(many=True, read_only=True)
-    notes          = NotesSerializer(many=True, read_only=True)
-    youtube_notes  = YoutubeNoteSerializer(many=True, read_only=True)
-    quizzes        = QuizSerializer(many=True, read_only=True, source='quiz_set')
+        fields = ["id", "question_data", "selected_answer"]
+
+class QuizAttemptSerializer(serializers.ModelSerializer):
+    failed_questions = FailedQuestionSerializer(many=True, read_only=True)
 
     class Meta:
-        model = Module
-        fields = ['id','name','description','documents','notes','youtube_notes','quizzes']
+        model = QuizAttempt
+        fields = [
+            "id", "quiz", "student", "responses", "score", 
+            "total_questions", "created_at", "failed_questions"
+        ]
+        read_only_fields = ["id", "student", "score", "total_questions", "created_at", "failed_questions"]
+from rest_framework import serializers
+from django.contrib.auth.models import User
+
+class RegisterSerializer(serializers.ModelSerializer):
+    # Single password field; frontend handles confirmation if desired
+    password = serializers.CharField(write_only=True, min_length=8)
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'password')
+        extra_kwargs = {
+            'email': {'required': True},
+        }
+
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            password=validated_data['password']
+        )
+        return user
