@@ -49,25 +49,25 @@ class MyTokenObtainPairView(TokenObtainPairView):
     #throttle_classes = [LoginRateThrottle]
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [permissions.IsAdminUser]
+# class UserViewSet(viewsets.ModelViewSet):
+#     queryset = User.objects.all()
+#     serializer_class = UserSerializer
+#     authentication_classes = [JWTAuthentication]
+#     permission_classes = [permissions.IsAdminUser]
 
-    @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
-    def me(self, request):
-        serializer = self.get_serializer(request.user)
-        return Response(serializer.data)
+#     @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
+#     def me(self, request):
+#         serializer = self.get_serializer(request.user)
+#         return Response(serializer.data)
 
-    def handle_exception(self, exc):
-        if isinstance(exc, IntegrityError):
-            return error_response(
-                message="User creation failed",
-                code=status.HTTP_400_BAD_REQUEST,
-                details={"error": "Username already exists"},
-            )
-        return super().handle_exception(exc)
+#     def handle_exception(self, exc):
+#         if isinstance(exc, IntegrityError):
+#             return error_response(
+#                 message="User creation failed",
+#                 code=status.HTTP_400_BAD_REQUEST,
+#                 details={"error": "Username already exists"},
+#             )
+#         return super().handle_exception(exc)
 #we have to create a viewset for register
 #here we are using the default user model
 MAX_FILE_SIZE_MB = 19
