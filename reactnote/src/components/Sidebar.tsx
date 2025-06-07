@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -6,7 +6,9 @@ import {
   Brain,
   History,
   BookOpen,
-  LogOut
+  LogOut,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 
@@ -27,77 +29,140 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ user, recentQuizzes, onLogout }: SidebarProps) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
   return (
-    <div className="w-80 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-r border-slate-200 dark:border-slate-700 p-6">
-      <div className="flex items-center gap-3 mb-8">
-        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-          <Brain className="w-6 h-6 text-white" />
-        </div>
-        <div>
-          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-            QuizMaster
-          </h1>
-          <p className="text-sm text-slate-500">AI-Powered Learning</p>
-        </div>
-      </div>
+    <div className={`bg-white dark:bg-gray-900 border-r transition-all duration-300 ease-in-out relative ${
+      isCollapsed ? 'w-16' : 'w-80'
+    }`}>
+      {/* Toggle Button */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={toggleSidebar}
+        className="absolute -right-3 top-4 z-10 h-6 w-6 rounded-full border bg-white dark:bg-gray-900 shadow-md hover:shadow-lg"
+      >
+        {isCollapsed ? (
+          <ChevronRight className="h-4 w-4" />
+        ) : (
+          <ChevronLeft className="h-4 w-4" />
+        )}
+      </Button>
 
-      <div className="flex items-center gap-3 mb-6 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
-        <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
-          {user?.username?.charAt(0).toUpperCase()}
+      <div className="flex flex-col h-full">
+        {/* Header */}
+        <div className="p-6 border-b">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+              <Brain className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            </div>
+            {!isCollapsed && (
+              <>
+                <div>
+                  <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+                    QuizMaster
+                  </h1>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    AI-Powered Learning
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
         </div>
-        <div className="flex-1">
-          <p className="font-medium text-sm">{user?.username}</p>
-          <p className="text-xs text-slate-500">Student</p>
-        </div>
-        <ModeToggle />
-      </div>
 
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-300 mb-3 flex items-center gap-2">
-            <History className="w-4 h-4" />
-            Recent Quizzes
-          </h3>
-          <ScrollArea className="h-64">
-            <div className="space-y-2">
+        {/* User Profile */}
+        <div className="p-6 border-b">
+          <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'}`}>
+            <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-medium">
+              {user?.username?.charAt(0).toUpperCase()}
+            </div>
+            {!isCollapsed && (
+              <div>
+                <p className="font-medium text-gray-900 dark:text-white">
+                  {user?.username}
+                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Student
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Recent Quizzes */}
+        {!isCollapsed && (
+          <div className="flex-1 p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <History className="h-4 w-4 text-gray-500" />
+              <h3 className="font-medium text-gray-900 dark:text-white">
+                Recent Quizzes
+              </h3>
+            </div>
+            
+            <ScrollArea className="h-64">
               {recentQuizzes.map((attempt) => (
-                <div
-                  key={attempt.id}
-                  className="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <p className="text-sm font-medium truncate flex-1">
+                <div key={attempt.id} className="mb-3 p-3 rounded-lg border bg-gray-50 dark:bg-gray-800">
+                  <div className="flex items-start justify-between mb-2">
+                    <h4 className="font-medium text-sm text-gray-900 dark:text-white line-clamp-2">
                       {attempt.quiz.quiz_title}
-                    </p>
+                    </h4>
                     <Badge variant={attempt.score >= attempt.total_questions * 0.7 ? "default" : "secondary"} className="ml-2">
                       {attempt.score}/{attempt.total_questions}
                     </Badge>
                   </div>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     {new Date(attempt.created_at).toLocaleDateString()}
                   </p>
                 </div>
               ))}
               {recentQuizzes.length === 0 && (
-                <div className="text-center py-8 text-slate-500">
-                  <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No quizzes taken yet</p>
+                <div className="text-center py-8">
+                  <BookOpen className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    No quizzes taken yet
+                  </p>
                 </div>
               )}
-            </div>
-          </ScrollArea>
-        </div>
-      </div>
+            </ScrollArea>
+          </div>
+        )}
 
-      <div className="mt-auto pt-6">
-        <Button
-          variant="ghost"
-          onClick={onLogout}
-          className="w-full justify-start text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800"
-        >
-          <LogOut className="w-4 h-4 mr-2" />
-          Sign Out
-        </Button>
+        {/* Footer Actions */}
+        <div className="p-6 border-t mt-auto">
+          <div className={`${isCollapsed ? 'flex flex-col space-y-2' : 'flex items-center justify-between'}`}>
+            {isCollapsed ? (
+              <>
+                <ModeToggle />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onLogout}
+                  className="w-full p-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </>
+            ) : (
+              <>
+                <ModeToggle />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onLogout}
+                  className="flex items-center space-x-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Sign Out</span>
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
