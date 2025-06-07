@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from cloudinary.models import CloudinaryField
+
 class Timer(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -9,60 +9,18 @@ class Timer(models.Model):
         abstract = True
         ordering = ['-created_at']
 
-class Module(Timer):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='modules')
-    name = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
-
-
-    def __str__(self):
-        return self.name
-
 class Document(Timer):
     """
     Model for uploaded study materials (PDF, Word, etc.).
     """
-    module = models.ForeignKey(Module, on_delete=models.CASCADE, null=True, blank=True, related_name='documents')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
-    file = CloudinaryField('documents', resource_type='raw')
-    file_name = models.CharField(max_length=255, blank=True)  # New field for original file name
-    chunks = models.JSONField(default=list, blank=True)  # Added to store chunks
+    file = models.FileField(upload_to='documents/')
     description = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.title} by {self.user}"
 
-class Notes(Timer):
-    module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name='notes')
-    document = models.ForeignKey(Document, on_delete=models.CASCADE, null=True, related_name='notes')
-    notes = models.TextField()
-    name = models.CharField(max_length=100, blank=True) 
-
-    def save(self, *args, **kwargs):
-        if not self.name:
-            self.name = (self.notes[:50] + '...') if len(self.notes) > 50 else self.notes
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f"{self.name} for {self.document.title if self.document else 'No Document'}"
-
-class YoutubeNote(Timer):
-    module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name='youtube_notes')
-    document = models.ForeignKey(Document, on_delete=models.CASCADE, null=True, related_name='youtube_notes')
-    summary = models.TextField(null=True)
-    transcription = models.TextField(null=True)
-    name = models.CharField(max_length=100, blank=True)  
-    youtubeVideoUrl = models.URLField(null=True)
-
-    def save(self, *args, **kwargs):
-        if not self.name:
-            base = self.summary or self.transcription or ""
-            self.name = (base[:50] + '...') if len(base) > 50 else base
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f"{self.name} for {self.document.title if self.document else 'No Document'}"
 class Quiz(Timer):
     """
     Model representing an AI-generated quiz for a given document.

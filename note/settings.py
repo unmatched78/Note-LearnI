@@ -76,22 +76,22 @@ WSGI_APPLICATION = 'note.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-DATABASES = {  
-    'default': {  
-        'ENGINE': 'django.db.backends.postgresql',  
-        'NAME': 'neondb',  
-        'USER': 'neondb_owner',  
-        'PASSWORD': 'npg_Igm8kvE1TYFH',  
-        'HOST': 'ep-mute-forest-a1lcex52-pooler.ap-southeast-1.aws.neon.tech',  
-        'PORT': '',  # Leave this empty for default PostgreSQL port  
-    }  
-}  
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+# DATABASES = {  
+#     'default': {  
+#         'ENGINE': 'django.db.backends.postgresql',  
+#         'NAME': 'neondb',  
+#         'USER': 'neondb_owner',  
+#         'PASSWORD': 'npg_Igm8kvE1TYFH',  
+#         'HOST': 'ep-mute-forest-a1lcex52-pooler.ap-southeast-1.aws.neon.tech',  
+#         'PORT': '',  # Leave this empty for default PostgreSQL port  
+#     }  
+# }  
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -143,15 +143,15 @@ SESSION_SAVE_EVERY_REQUEST = False  # Refresh session on each request
 
 #cloudinary
 # Cloudinary configuration
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'dmk7zhp0e',
-    'API_KEY': '227189412786855',
-    'API_SECRET': '0qzGFhzREtnG-aDfq4P74jFDA5Q',
-    'RESOURCE_TYPE': 'raw',  # For non-image files like PDFs
-}
+# CLOUDINARY_STORAGE = {
+#     'CLOUD_NAME': 'dmk7zhp0e',
+#     'API_KEY': '227189412786855',
+#     'API_SECRET': '0qzGFhzREtnG-aDfq4P74jFDA5Q',
+#     'RESOURCE_TYPE': 'raw',  # For non-image files like PDFs
+# }
 
-# Use Cloudinary for media storage
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+# # Use Cloudinary for media storage
+# DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
@@ -169,13 +169,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = '/static/'
-# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # for collectstatic
-# #for collectstatic whitenoise
-# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-# # Media files (uploaded images, videos)
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # for collectstatic
+#for collectstatic whitenoise
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Media files (uploaded images, videos)
 
-# MEDIA_URL = "/media/"
-# MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
