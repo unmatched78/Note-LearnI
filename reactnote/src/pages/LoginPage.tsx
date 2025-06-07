@@ -22,7 +22,7 @@ export default function LoginPage() {
   const location = useLocation();
 
   // Where the user wanted to go before being redirected to /login
-  const from = (location.state as any)?.from?.pathname || '/notes';
+  const from = (location.state as any)?.from?.pathname || '/quiz';
 
   async function handleLogin() {
     if (!username || !password) {
@@ -42,38 +42,41 @@ export default function LoginPage() {
   return (
     <div className="flex items-center justify-center h-screen bg-gray-50">
       <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
-          <CardDescription>
-            Enter your credentials to access your notes.
-          </CardDescription>
-        </CardHeader>
+        <CardHeader>…</CardHeader>
 
-        <CardContent>
-          <div className="flex flex-col space-y-4">
-            <Input
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-            <Input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-        </CardContent>
+        {/* Wrap in a form */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleLogin();
+          }}
+        >
+          <CardContent>
+            <div className="flex flex-col space-y-4">
+              <Input
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+              <Input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+          </CardContent>
 
-        <CardFooter>
-          <Button
-            className="w-full"
-            onClick={handleLogin}
-            disabled={loading}
-          >
-            {loading ? 'Logging in…' : 'Login'}
-          </Button>
-        </CardFooter>
+          <CardFooter>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={loading}
+            >
+              {loading ? 'Logging in…' : 'Login'}
+            </Button>
+          </CardFooter>
+        </form>
       </Card>
     </div>
   );

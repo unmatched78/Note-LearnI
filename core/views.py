@@ -13,20 +13,62 @@ from .utils.quiz_utils import generate_questions_from_text, evaluate_answers_log
 from rest_framework.permissions import IsAuthenticated
 import logging
 import os
+from .api.responses import error_response
 import json
 logger = logging.getLogger(__name__)
 
-# JWT Login Endpoint
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    permission_classes = [permissions.AllowAny]
+
     def validate(self, attrs):
-        data = super().validate(attrs)
-        data['user'] = {'id': self.user.id, 'username': self.user.username, 'email': self.user.email}
-        return data
+        try:
+            data = super().validate(attrs)
+            return {
+                "tokens": {"refresh": data["refresh"], "access": data["access"]},
+                "user": {
+                    "id": self.user.id,
+                    "username": self.user.username,
+                },
+            }
+        except ValidationError:
+            return error_response(
+                message="Authentication failed",
+                code=status.HTTP_401_UNAUTHORIZED,
+                details={"error": "Invalid credentials"},
+            )
+
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token["user_id"] = user.id
+        return token
+
 
 class MyTokenObtainPairView(TokenObtainPairView):
-    permission_classes = [permissions.AllowAny]
     serializer_class = MyTokenObtainPairSerializer
-#we have to create a viewset fro register
+    #throttle_classes = [LoginRateThrottle]
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [permissions.IsAdminUser]
+
+    @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
+    def me(self, request):
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data)
+
+    def handle_exception(self, exc):
+        if isinstance(exc, IntegrityError):
+            return error_response(
+                message="User creation failed",
+                code=status.HTTP_400_BAD_REQUEST,
+                details={"error": "Username already exists"},
+            )
+        return super().handle_exception(exc)
+#we have to create a viewset for register
 #here we are using the default user model
 MAX_FILE_SIZE_MB = 19
 
