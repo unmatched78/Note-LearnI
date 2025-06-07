@@ -34,6 +34,9 @@ class Quiz(Timer):
     def __str__(self):
         return f"{self.quiz_title} for {self.document.title}"
 
+
+
+
 class QuizAttempt(Timer):
     """
     Model to store a student's attempt at a quiz.
