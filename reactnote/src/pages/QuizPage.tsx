@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/api';
-
+import { getStoredAccessToken, getStoredRefreshToken, clearTokens } from '../api/api';
 // Import our new components
 import Sidebar from '../components/Sidebar';
 import UploadView from '../components/UploadView';
@@ -90,8 +90,15 @@ export default function QuizPage() {
     formData.append('file', selectedFile);
     formData.append('title', selectedFile.name);
 
+    const token = getStoredAccessToken();
+    console.log('Access token before upload:', token);
+    if (!token) {
+      toast.error('You are not logged in. Please log in again.');
+      setIsUploading(false);
+      return;
+    }
+
     try {
-      // Simulate progress
       const progressInterval = setInterval(() => {
         setUploadProgress(prev => Math.min(prev + 10, 90));
       }, 200);
@@ -104,12 +111,32 @@ export default function QuizPage() {
 
       clearInterval(progressInterval);
       setUploadProgress(100);
-      
+
+      // Use the response to set the selected document
+      const newDocument = {
+        id: response.data.id,
+        title: selectedFile.name,
+        created_at: new Date().toISOString(), // Approximate, or fetch from response if available
+      };
+      console.log('New document from response:', newDocument); // Debug
+
+      // Update documents list
       await loadDocuments();
+
+      // Set the newly uploaded document as selected
+      setSelectedDocument(newDocument);
       setSelectedFile(null);
       setCurrentView('generate');
+      toast.success('Document uploaded successfully!');
     } catch (error) {
-      console.error('Upload failed:', error);
+      if (axios.isAxiosError(error)) {
+        const message = error.response?.data?.detail || 'Upload failed. Please try again.';
+        toast.error(message);
+        console.error('Upload failed:', error.response?.data);
+      } else {
+        toast.error('An unexpected error occurred.');
+        console.error('Upload failed:', error);
+      }
     } finally {
       setIsUploading(false);
       setTimeout(() => setUploadProgress(0), 1000);
@@ -204,7 +231,7 @@ export default function QuizPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
       <div className="flex h-screen">
         {/* Sidebar */}
-        <Sidebar 
+        <Sidebar
           user={user}
           recentQuizzes={recentQuizzes}
           onLogout={logout}
