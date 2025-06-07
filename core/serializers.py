@@ -29,11 +29,11 @@ class QuizAttemptSerializer(serializers.ModelSerializer):
             "total_questions", "created_at", "failed_questions"
         ]
         read_only_fields = ["id", "student", "score", "total_questions", "created_at", "failed_questions"]
-from rest_framework import serializers
+
 from django.contrib.auth.models import User
 
 class RegisterSerializer(serializers.ModelSerializer):
-    # Single password field; frontend handles confirmation if desired
+    # Only one password field; frontend can handle confirmation
     password = serializers.CharField(write_only=True, min_length=8)
 
     class Meta:
@@ -44,6 +44,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
+        # Create user with provided password
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],

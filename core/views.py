@@ -9,7 +9,8 @@ from django.shortcuts import get_object_or_404
 from .models import  *
 from .serializers import*
 from .utils.file_processing import extract_text_from_file, split_text_into_chunks
-from .utils.quiz_utils import generate_questions_from_text, evaluate_answers_logic, generate_summary
+from .utils.quiz_utils import generate_questions_from_text, evaluate_answers_logic
+from rest_framework.permissions import IsAuthenticated
 import logging
 import os
 import json
