@@ -34,7 +34,7 @@ class Document(Timer):
     title = models.CharField(max_length=200)
     file = models.FileField(upload_to='documents/')
     description = models.TextField(blank=True, null=True)
-    code = models.CharField(max_length=50, unique=True, help_text="Unique code for the document")
+    code = models.CharField(max_length=50,null=True, unique=True, help_text="Unique code for the document")
 
     def __str__(self):
         return f"{self.title} by {self.user}"
@@ -47,7 +47,7 @@ class Module(Timer):
     description = models.TextField(blank=True, null=True)
     documents = models.ManyToManyField(Document, related_name='modules', blank=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, help_text="User who created the module")
-    code = models.CharField(max_length=50, unique=True, help_text="Unique code for the module")
+    code = models.CharField(max_length=50,null=True, unique=True, help_text="Unique code for the module")
 
     def __str__(self):
         return self.title
