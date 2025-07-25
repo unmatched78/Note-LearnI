@@ -103,8 +103,8 @@ flowchart LR
 1. **Repository Setup**
 
 ```bash
-git clone https://github.com/your-username/ai-learning-platform.git
-cd ai-learning-platform
+git clone https://github.com/unmatched/note-learn.git
+cd note-learn
 ```
 
 2. **Back-end Configuration**
