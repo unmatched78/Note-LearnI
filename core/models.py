@@ -1,5 +1,22 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
+import json
+from django.utils import timezone
+import shortuuid
+
+def validate_json(value):
+    """
+    Custom validator to ensure the value is a valid JSON string.
+    """
+    try:
+        json.loads(value)
+    except ValueError as e:
+        raise ValidationError(
+            _('Invalid JSON: %(error)s'),
+            params={'error': str(e)},
+        )
 
 class Timer(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -21,6 +38,19 @@ class Document(Timer):
     def __str__(self):
         return f"{self.title} by {self.user}"
 
+class Module(Timer):
+    """
+    Model representing a module containing multiple documents.
+    """
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)
+    documents = models.ManyToManyField(Document, related_name='modules', blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, help_text="User who created the module")
+    code = models.CharField(max_length=50, unique=True, help_text="Unique code for the module")
+
+    def __str__(self):
+        return self.title
+    
 class Quiz(Timer):
     """
     Model representing an AI-generated quiz for a given document.

@@ -18,3 +18,4 @@ virtualenv==20.26.3
 watchfiles
 whitenoise
 django-cloudinary-storage
+django-shortuuidfield
