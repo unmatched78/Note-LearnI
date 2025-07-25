@@ -1,83 +1,143 @@
 // src/pages/LoginPage.tsx
-import  { useState } from 'react';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 export default function LoginPage() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-
-  // Where the user wanted to go before being redirected to /login
   const from = (location.state as any)?.from?.pathname || '/quiz';
 
-  async function handleLogin() {
-    if (!username || !password) {
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email || !password) {
       toast.error('Please enter both username and password.');
       return;
     }
-
     try {
-      await login(username, password);
-      // After successful login, go “from” or default to /notes
+      await login(email, password);
       navigate(from, { replace: true });
-    } catch (err) {
+    } catch {
       toast.error('Login failed. Please check your credentials.');
     }
   }
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-50">
-      <Card className="w-full max-w-sm">
-        <CardHeader>…</CardHeader>
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+      <div className="flex-grow flex items-center justify-center p-6">
+        <Card className="w-full max-w-4xl overflow-hidden">
+          <CardContent className="grid md:grid-cols-2">
+            {/* Left: Form */}
+            <div className="p-6 md:p-8">
+              <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
+                <div className="text-center">
+                  <h1 className="text-2xl font-bold">Welcome back</h1>
+                  <p className="text-muted-foreground">
+                    Login to your LearnAI account
+                  </p>
+                </div>
 
-        {/* Wrap in a form */}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleLogin();
-          }}
-        >
-          <CardContent>
-            <div className="flex flex-col space-y-4">
-              <Input
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-              <Input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                <div className="grid gap-2">
+                  <Label htmlFor="username">Username</Label>
+                  <Input
+                    id="email"
+                    type="username"
+                    placeholder="example"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="grid gap-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password">Password</Label>
+                    <Link
+                      to="/forgot-password"
+                      className="text-sm underline-offset-2 hover:underline"
+                    >
+                      Forgot password?
+                    </Link>
+                  </div>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? 'Logging in…' : 'Login'}
+                </Button>
+
+                <div className="relative text-center text-sm">
+                  <span className="bg-card px-2 text-muted-foreground">
+                    Or continue with
+                  </span>
+                  <div className="absolute inset-0 top-1/2 border-t border-border" />
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  <Button variant="outline" className="w-full" type="button">
+                    {/* Apple SVG */}
+                    <svg /* ... */ />
+                    <span className="sr-only">Login with Apple</span>
+                  </Button>
+                  <Button variant="outline" className="w-full" type="button">
+                    {/* Google SVG */}
+                    <svg /* ... */ />
+                    <span className="sr-only">Login with Google</span>
+                  </Button>
+                  <Button variant="outline" className="w-full" type="button">
+                    {/* Meta SVG */}
+                    <svg /* ... */ />
+                    <span className="sr-only">Login with Meta</span>
+                  </Button>
+                </div>
+
+                <p className="text-center text-sm">
+                  Don’t have an account?{' '}
+                  <Link to="/register" className="underline underline-offset-4">
+                    Sign up
+                  </Link>
+                </p>
+              </form>
+            </div>
+
+            {/* Right: Illustration */}
+            <div className="hidden md:block relative bg-muted">
+              <img
+                src="/auth-illustration.svg"
+                alt="Learning illustration"
+                className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
               />
             </div>
           </CardContent>
+        </Card>
+      </div>
 
-          <CardFooter>
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={loading}
-            >
-              {loading ? 'Logging in…' : 'Login'}
-            </Button>
-          </CardFooter>
-        </form>
-      </Card>
+      <footer className="text-center text-xs text-muted-foreground py-4">
+        By continuing, you agree to our{' '}
+        <Link to="/terms" className="underline underline-offset-2">
+          Terms of Service
+        </Link>{' '}
+        and{' '}
+        <Link to="/privacy" className="underline underline-offset-2">
+          Privacy Policy
+        </Link>
+        .
+      </footer>
     </div>
   );
 }
