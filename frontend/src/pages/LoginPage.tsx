@@ -118,9 +118,9 @@ export default function LoginPage() {
             {/* Right: Illustration */}
             <div className="hidden md:block relative bg-muted">
               <img
-                src="/auth-illustration.svg"
+                src="https://previews.123rf.com/images/michaeljung/michaeljung1208/michaeljung120800113/14669221-beautiful-young-female-college-student-portrait.jpg"
                 alt="Learning illustration"
-                className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+                className="absolute inset-0 h-full w-full object-cover"
               />
             </div>
           </CardContent>
