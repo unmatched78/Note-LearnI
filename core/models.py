@@ -34,6 +34,7 @@ class Document(Timer):
     title = models.CharField(max_length=200)
     file = models.FileField(upload_to='documents/')
     description = models.TextField(blank=True, null=True)
+    code = models.CharField(max_length=50, unique=True, help_text="Unique code for the document")
 
     def __str__(self):
         return f"{self.title} by {self.user}"
