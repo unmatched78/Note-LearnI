@@ -16,7 +16,8 @@ import os
 from .api.responses import error_response
 import json
 logger = logging.getLogger(__name__)
-
+from rest_framework_simplejwt.views import TokenRefreshView
+from .serializers import MyTokenRefreshSerializer
 from django.utils.decorators import method_decorator
 from django.db import IntegrityError
 from django.core.exceptions import ValidationError
@@ -51,7 +52,11 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
     #throttle_classes = [LoginRateThrottle]
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
 
+class MyTokenRefreshView(TokenRefreshView):
+    serializer_class = MyTokenRefreshSerializer
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -62,6 +67,7 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
     def me(self, request):
         serializer = self.get_serializer(request.user)
+        print(serializer.data)
         return Response(serializer.data)
 
     def handle_exception(self, exc):
