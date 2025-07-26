@@ -61,6 +61,7 @@ Key objectives include:
 * **Shadcn/UI** – Predefined accessible component suite
 * **Accentinity UI** – Advanced theme and color token management
 * **JWT** – Session management via secure JSON Web Tokens
+*  **Clerk auth ** 
 
 ### Back-end
 
