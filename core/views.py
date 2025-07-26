@@ -218,3 +218,33 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = [permissions.AllowAny]
     serializer_class = RegisterSerializer
+
+class ModuleViewSet(viewsets.ModelViewSet):
+    queryset = Module.objects.all().order_by('-created_at')
+    serializer_class = ModuleSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+    @action(detail=False, methods=['post'])
+    def add_document(self, request):
+        """
+        POST payload: {
+          "module_id": int,
+          "document_id": int,
+          "created_by": int,
+            "code": str,
+            "title": str,
+            "description": str
+        }
+        """
+        module_id = request.data.get('module_id')
+        document_id = request.data.get('document_id')
+
+        module = get_object_or_404(Module, id=module_id, created_by=request.user)
+        document = get_object_or_404(Document, id=document_id)
+
+        module.documents.add(document)
+        return Response({"detail": "Document added to module"}, status=200)

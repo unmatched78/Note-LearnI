@@ -134,3 +134,50 @@ class RegisterSerializer(serializers.ModelSerializer):
             password=validated_data['password']
         )
         return user
+
+
+class ModuleSerializer(serializers.ModelSerializer):
+    documents = DocumentSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Module
+        fields = ["id", "title", "description", "documents", "created_by", "code"]
+        read_only_fields = ["id", "created_by", "documents"]
+
+    def create(self, validated_data):
+        # Create module with the user who created it
+        validated_data['created_by'] = self.context['request'].user
+        return super().create(validated_data)
+        """
+        POST payload: {
+          "module_id": int,
+          "document_id": int,
+          "created_by": int,
+            "code": str,
+            "title": str,
+            "description": str
+        }
+        """             
+    def update(self, instance, validated_data):
+        # Update the module instance with the provided data
+        instance.title = validated_data.get('title', instance.title)
+        instance.description = validated_data.get('description', instance.description)
+        instance.code = validated_data.get('code', instance.code)
+        instance.save()
+        return instance
+        """        POST payload: {
+          "module_id": int,
+          "document_id": int,
+          "created_by": int,
+            "code": str,
+            "title": str,
+            "description": str
+        }
+        """     
+    def validate_code(self, value):
+        """
+        Ensure the code is unique and not already used by another module.
+        """
+        if Module.objects.filter(code=value).exists():
+            raise serializers.ValidationError("This code is already in use by another module.")
+        return value
