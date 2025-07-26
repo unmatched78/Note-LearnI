@@ -10,6 +10,7 @@ from .views import (
     QuizViewSet,
     QuizAttemptViewSet,
     UserViewSet,
+    MyTokenRefreshView,
 )
 
 router = DefaultRouter()
@@ -22,7 +23,8 @@ urlpatterns = [
     # 1) Public /auth endpoints FIRST
     path('api/auth/register/',       RegisterView.as_view(),       name='auth_register'),
     path('api/auth/token/login/',    MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/',  TokenRefreshView.as_view(),      name='token_refresh'),
+    #path('api/token/refresh/',  TokenRefreshView.as_view(),      name='token_refresh'),
+    path("auth/refresh/", MyTokenRefreshView.as_view(),     name="token_refresh"),
 
     # 2) Then everything else under /api/
     path('api/', include(router.urls)),
