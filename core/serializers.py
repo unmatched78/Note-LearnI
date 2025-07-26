@@ -4,6 +4,44 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from .models import *
+from django.contrib.auth.models import User
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
+from rest_framework import permissions
+
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+# users/serializers.py
+
+
+class MyTokenRefreshSerializer(TokenRefreshSerializer):
+    def validate(self, attrs):
+        # this gives you the {"access": "..."} dict
+        data = super().validate(attrs)
+
+        # decode the incoming refresh token to get your custom claim:
+        refresh = RefreshToken(attrs['refresh'])
+        user_id = refresh.get('user_id')
+
+        # lookup the user
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            # fall back if something is wrong
+            return data
+
+        # attach whatever user fields you want:
+        data['user'] = {
+            'id':       user.id,
+            'username': user.username,
+            'email':    user.email,
+            'role':     getattr(user, 'role', None),
+            # …any other fields/seria lizer if you prefer…
+        }
+
+        return data
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         write_only=True,
@@ -76,7 +114,6 @@ class QuizAttemptSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "student", "score", "total_questions", "created_at", "failed_questions"]
 
-from django.contrib.auth.models import User
 
 class RegisterSerializer(serializers.ModelSerializer):
     # Only one password field; frontend can handle confirmation
