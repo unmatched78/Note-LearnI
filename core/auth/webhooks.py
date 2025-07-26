@@ -89,7 +89,7 @@ def clerk_webhook(request):
 
         except Exception as exc:
             logger.exception("Error handling user.created webhook: %s", exc)
-            return HttpResponseServerError(str(exc))
+            return HttpResponseServerError("An internal error has occurred.")
 
     # Ignore other event types
     logger.debug("Ignoring Clerk event type: %s", event_type)
