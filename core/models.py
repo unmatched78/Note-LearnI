@@ -50,7 +50,7 @@ class Module(Timer):
     code = models.CharField(max_length=50,null=True, unique=True, help_text="Unique code for the module")
 
     def __str__(self):
-        return self.title
+        return f"{self.title} by {self.created_by} with {self.documents.count()} documents and {self.code}"
     
 class Quiz(Timer):
     """
