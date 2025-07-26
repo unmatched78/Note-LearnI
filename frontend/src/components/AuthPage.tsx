@@ -1,5 +1,5 @@
 // AuthPage.tsx
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { SignIn, SignUp, useUser } from '@clerk/clerk-react';
 
 type AuthMode = 'sign-in' | 'sign-up';
