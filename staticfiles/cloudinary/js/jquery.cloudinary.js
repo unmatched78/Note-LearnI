@@ -4723,7 +4723,7 @@ var slice = [].slice,
       if (Util.isPlainObject(value)) {
         upload_params[key] = jQuery.map(value, function(v, k) {
           if (Util.isString(v)) {
-            v = v.replace(/[\|=]/g, "\\$&");
+            v = v.replace(/[\\|=]/g, "\\$&");
           }
           return k + '=' + v;
         }).join('|');
