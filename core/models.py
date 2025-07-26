@@ -39,20 +39,6 @@ class Document(Timer):
     def __str__(self):
         return f"{self.title} by {self.user}"
 
-class Module(Timer):
-    """
-    Model representing a module containing multiple documents & other course material and quiz.
-    """
-    title = models.CharField(max_length=200)
-    description = models.TextField(blank=True, null=True)
-    documents = models.ManyToManyField(Document, related_name='modules', blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, help_text="User who created the module")
-    quiz= models.ForeignKey('Quiz', on_delete=models.CASCADE, null=True, blank=True, related_name='modules', help_text="Quizs associated with this module")
-    # Unique code for the module, can be used for easy reference
-    code = models.CharField(max_length=50,null=True, unique=True, help_text="Unique code for the module")
-
-    def __str__(self):
-        return f"{self.title} by {self.created_by} with {self.documents.count()} documents and {self.code}"
     
 class Quiz(Timer):
     """
@@ -96,3 +82,19 @@ class FailedQuestion(Timer):
 
     def __str__(self):
         return f"{self.quiz_attempt.student} failed question in {self.quiz_attempt.quiz.quiz_title}"
+    
+
+class Module(Timer):
+    """
+    Model representing a module containing multiple documents & other course material and quiz.
+    """
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)
+    documents = models.ManyToManyField(Document, related_name='modules', blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, help_text="User who created the module")
+    quiz= models.ManyToManyField('Quiz', null=True, blank=True, related_name='modules', help_text="Quizs associated with this module")
+    # Unique code for the module, can be used for easy reference
+    code = models.CharField(max_length=50,null=True, unique=True, help_text="Unique code for the module")
+
+    def __str__(self):
+        return f"{self.title} by {self.created_by} and {self.code}"

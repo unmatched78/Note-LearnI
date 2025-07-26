@@ -263,5 +263,5 @@ class ModuleViewSet(viewsets.ModelViewSet):
         module = get_object_or_404(Module, id=module_id, created_by=request.user)
         document = get_object_or_404(Quiz, id=quiz_id)
 
-        module.documents.add(document)
+        module.quiz.add(document)
         return Response({"detail": "Document added to module"}, status=200)
