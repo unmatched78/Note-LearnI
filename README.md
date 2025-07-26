@@ -1,5 +1,5 @@
 # AI Learning Platform
-
+![Alt text](https://github.com/unmatched78/note-learnI/blob/main/Docs/Screenshot%202025-07-26%20182438.png) <br></br>
 Welcome to the **AI Learning Platform**, a comprehensive, full-stack digital ecosystem engineered to support and optimize student learning through structured resource organization, intelligent recommendations, and interactive progress monitoring.
 
 > Empowering learners to realize their academic aspirations through intelligent, data-driven pathways.
