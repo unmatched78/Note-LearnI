@@ -24,3 +24,4 @@ __pycache__
 *.orig
 *.DS_Store
 *.idea
+media
