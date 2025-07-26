@@ -1,4 +1,4 @@
-from fastapi import HTTPException # use request instead || maybe!
+from django.config import  HTTPException # use request instead || maybe!
 from clerk_backend_api import Clerk, AuthenticateRequestOptions
 import os
 from dotenv import load_dotenv

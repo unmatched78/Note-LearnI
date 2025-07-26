@@ -1,11 +1,22 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 import json
 from django.utils import timezone
 from shortuuidfield import ShortUUIDField
 
+
+class User(AbstractUser):
+    clerk_id = models.CharField(
+        _("Clerk User ID"),
+        max_length=255,
+        unique=True,
+        blank=True,
+        null=True,
+        help_text="The Clerk-issued user identifier"
+    )
 def validate_json(value):
     """
     Custom validator to ensure the value is a valid JSON string.
