@@ -14,12 +14,12 @@ if (!PUBLISHABLE_KEY) {
 createRoot(document.getElementById('root')!).render(
   <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
     <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-  <AuthProvider>
-  <StrictMode>
-    <App />
-  </StrictMode>
-  </AuthProvider>
-  </ClerkProvider>
+      <AuthProvider>
+        <StrictMode>
+          <App />
+        </StrictMode>
+      </AuthProvider>
+    </ClerkProvider>
   </ThemeProvider>
   ,
 )
