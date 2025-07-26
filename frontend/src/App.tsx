@@ -6,6 +6,7 @@ import RegisterPage from './pages/RegisterPage'
 import PrivateRoute from './components/PrivateRoute'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './context/AuthContext'
+import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
 
 function App() {
   const { user } = useAuth()
