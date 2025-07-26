@@ -147,10 +147,10 @@ REST_FRAMEWORK = {
 #cloudinary
 # Cloudinary configuration
 # CLOUDINARY_STORAGE = {
-#     'CLOUD_NAME': 'dmk7zhp0e',
-#     'API_KEY': '227189412786855',
-#     'API_SECRET': '0qzGFhzREtnG-aDfq4P74jFDA5Q',
-#     'RESOURCE_TYPE': 'raw',  # For non-image files like PDFs
+#     'CLOUD_NAME': '',
+#     'API_KEY': '',
+#     'API_SECRET': '',
+#     'RESOURCE_TYPE': '',  # For non-image files like PDFs
 # }
 
 # # Use Cloudinary for media storage
