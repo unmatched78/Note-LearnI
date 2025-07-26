@@ -14,7 +14,7 @@ djangorestframework
 djangorestframework-simplejwt
 django-cors-headers==4.6.0
 sqlparse==0.5.1
-virtualenv==20.26.3
+virtualenv==20.26.6
 watchfiles
 whitenoise
 django-cloudinary-storage
