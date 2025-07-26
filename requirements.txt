@@ -19,3 +19,6 @@ watchfiles
 whitenoise
 django-cloudinary-storage
 django-shortuuidfield
+svix
+clerk-backend-api
+pydantic
