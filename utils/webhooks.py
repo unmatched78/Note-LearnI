@@ -1,1 +1,0 @@
-#for clerk webhooks with svix || auth

@@ -1,11 +1,12 @@
 # core/urls.py
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import TokenRefreshView
+# from rest_framework_simplejwt.views import TokenRefreshView
+from .auth.webhooks import clerk_webhook
 
 from .views import (
     RegisterView,
-    MyTokenObtainPairView,
+    # MyTokenObtainPairView,
     DocumentViewSet,
     QuizViewSet,
     QuizAttemptViewSet,
@@ -24,8 +25,9 @@ router.register(r'modules',   ModuleViewSet,   basename='module')
 urlpatterns = [
     # 1) Public /auth endpoints FIRST
     path('api/auth/register/',       RegisterView.as_view(),       name='auth_register'),
-    path('api/auth/token/login/',    MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/',  TokenRefreshView.as_view(),      name='token_refresh'),
+    # path('api/auth/token/login/',    MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    # path('api/token/refresh/',  TokenRefreshView.as_view(),      name='token_refresh'),
+    path("api/webhooks/clerk/", clerk_webhook, name="clerk_webhook"),
 
     # 2) Then everything else under /api/
     path('api/', include(router.urls)),

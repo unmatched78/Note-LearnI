@@ -73,7 +73,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-AUTH_USER_MODEL = "core.User"
+AUTH_USER_MODEL = "core.CustomUser"
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -84,16 +84,7 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-# DATABASES = {  
-#     'default': {  
-#         'ENGINE': 'django.db.backends.postgresql',  
-#         'NAME': 'neondb',  
-#         'USER': 'neondb_owner',  
-#         'PASSWORD': 'npg_Igm8kvE1TYFH',  
-#         'HOST': 'ep-mute-forest-a1lcex52-pooler.ap-southeast-1.aws.neon.tech',  
-#         'PORT': '',  # Leave this empty for default PostgreSQL port  
-#     }  
-# }  
+ 
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -133,6 +124,8 @@ AUTH_PASSWORD_VALIDATORS = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # Swap out SimpleJWT for your Clerk auth backend
+        'core.auth.authentication.ClerkAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',

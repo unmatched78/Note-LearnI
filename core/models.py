@@ -6,9 +6,12 @@ from django.core.exceptions import ValidationError
 import json
 from django.utils import timezone
 from shortuuidfield import ShortUUIDField
+# from django.contrib.auth import get_user_model
+# User = get_user_model()
+from django.conf import settings
+User= settings.AUTH_USER_MODEL
 
-
-class User(AbstractUser):
+class CustomUser(AbstractUser):
     clerk_id = models.CharField(
         _("Clerk User ID"),
         max_length=255,
@@ -103,7 +106,7 @@ class Module(Timer):
     description = models.TextField(blank=True, null=True)
     documents = models.ManyToManyField(Document, related_name='modules', blank=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, help_text="User who created the module")
-    quiz= models.ManyToManyField('Quiz', null=True, blank=True, related_name='modules', help_text="Quizs associated with this module")
+    quiz= models.ManyToManyField('Quiz', blank=True, related_name='modules', help_text="Quizs associated with this module")
     # Unique code for the module, can be used for easy reference
     code = models.CharField(max_length=50,null=True, unique=True, help_text="Unique code for the module")
 

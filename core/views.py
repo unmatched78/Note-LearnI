@@ -1,9 +1,10 @@
 from rest_framework import viewsets, status, generics, permissions
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+#from rest_framework_simplejwt.authentication import JWTAuthentication 
+from core.auth.authentication import ClerkAuthentication as JWTAuthentication
+# from rest_framework_simplejwt.views import TokenObtainPairView
+# from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
 from .models import  *
@@ -11,52 +12,52 @@ from .serializers import*
 from .utils.file_processing import extract_text_from_file, split_text_into_chunks
 from .utils.quiz_utils import generate_questions_from_text, evaluate_answers_logic
 from rest_framework.permissions import IsAuthenticated
-import logging
-import os
 from .api.responses import error_response
-import json
-logger = logging.getLogger(__name__)
-from rest_framework_simplejwt.views import TokenRefreshView
-from .serializers import MyTokenRefreshSerializer
+# from rest_framework_simplejwt.views import TokenRefreshView
 from django.utils.decorators import method_decorator
 from django.db import IntegrityError
 from django.core.exceptions import ValidationError
 from rest_framework.exceptions import PermissionDenied
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    permission_classes = [permissions.AllowAny]
+from django.contrib.auth import get_user_model
+import logging, os, json
+logger = logging.getLogger(__name__)
+User = get_user_model()
 
-    def validate(self, attrs):
-        try:
-            data = super().validate(attrs)
-            return {
-                "tokens": {"refresh": data["refresh"], "access": data["access"]},
-                "user": {
-                    "id": self.user.id,
-                    "username": self.user.username,
-                },
-            }
-        except ValidationError:
-            return error_response(
-                message="Authentication failed",
-                code=status.HTTP_401_UNAUTHORIZED,
-                details={"error": "Invalid credentials"},
-            )
+# class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+#     permission_classes = [permissions.AllowAny]
 
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-        token["user_id"] = user.id
-        return token
+#     def validate(self, attrs):
+#         try:
+#             data = super().validate(attrs)
+#             return {
+#                 "tokens": {"refresh": data["refresh"], "access": data["access"]},
+#                 "user": {
+#                     "id": self.user.id,
+#                     "username": self.user.username,
+#                 },
+#             }
+#         except ValidationError:
+#             return error_response(
+#                 message="Authentication failed",
+#                 code=status.HTTP_401_UNAUTHORIZED,
+#                 details={"error": "Invalid credentials"},
+#             )
+
+#     @classmethod
+#     def get_token(cls, user):
+#         token = super().get_token(user)
+#         token["user_id"] = user.id
+#         return token
 
 
-class MyTokenObtainPairView(TokenObtainPairView):
-    serializer_class = MyTokenObtainPairSerializer
-    #throttle_classes = [LoginRateThrottle]
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+# class MyTokenObtainPairView(TokenObtainPairView):
+#     serializer_class = MyTokenObtainPairSerializer
+#     #throttle_classes = [LoginRateThrottle]
+#     def perform_create(self, serializer):
+#         serializer.save(created_by=self.request.user)
 
-class MyTokenRefreshView(TokenRefreshView):
-    serializer_class = MyTokenRefreshSerializer
+# class MyTokenRefreshView(TokenRefreshView):
+#     serializer_class = MyTokenRefreshSerializer
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -64,11 +65,25 @@ class UserViewSet(viewsets.ModelViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [permissions.IsAdminUser]
 
+    # @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
+    # def me(self, request):
+    #     serializer = self.get_serializer(request.user)
+    #     print(serializer.data)
+    #     return Response(serializer.data)
     @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
     def me(self, request):
+        # request.user is using Django user with a clerk_id
+        # pull Clerk’s metadata if any:
+        data = clerk.users.get_user(user_id=request.user.clerk_id)
         serializer = self.get_serializer(request.user)
-        print(serializer.data)
-        return Response(serializer.data)
+        return Response({
+            "user": serializer.data,
+            "clerk_profile": {
+                "email": data.email_addresses[0].email_address if data.email_addresses else None,
+                "first_name": data.first_name if data.first_name else None,
+                "last_name": data.last_name if data.last_name else None,
+            }
+        })
 
     def handle_exception(self, exc):
         if isinstance(exc, IntegrityError):
@@ -203,8 +218,6 @@ class QuizAttemptViewSet(viewsets.ModelViewSet):
         })
 
 from rest_framework import generics, permissions
-from django.contrib.auth.models import User
-from .serializers import RegisterSerializer
 
 class RegisterView(generics.CreateAPIView):
     """
