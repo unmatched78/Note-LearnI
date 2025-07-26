@@ -311,7 +311,7 @@ export default function Sidebar({ user, recentQuizzes, onLogout }: SidebarProps)
             </Button>
           </div>
           <ul className="space-y-2">
-            {modules.reverse().map((mod, idx) => (
+            {[...modules].reverse().map((mod, idx) => (
               <li key={idx}>
                 <Button
                   variant="outline"

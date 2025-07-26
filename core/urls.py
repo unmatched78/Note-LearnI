@@ -10,6 +10,8 @@ from .views import (
     QuizViewSet,
     QuizAttemptViewSet,
     UserViewSet,
+    MyTokenRefreshView,
+    ModuleViewSet,
 )
 
 router = DefaultRouter()
@@ -17,6 +19,8 @@ router.register(r'documents', DocumentViewSet, basename='document')
 router.register(r'quizzes',   QuizViewSet,     basename='quiz')
 router.register(r'attempts',  QuizAttemptViewSet, basename='attempt')
 router.register(r'users',     UserViewSet,     basename='user')
+router.register(r'modules',   ModuleViewSet,   basename='module')
+
 
 urlpatterns = [
     # 1) Public /auth endpoints FIRST
