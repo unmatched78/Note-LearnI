@@ -141,7 +141,7 @@ class ModuleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Module
-        fields = ["id", "title", "description", "documents", "created_by", "code"]
+        fields = ["id", "title", "quiz","description", "documents", "created_by", "code"]
         read_only_fields = ["id", "created_by", "documents"]
 
     def create(self, validated_data):
@@ -153,6 +153,7 @@ class ModuleSerializer(serializers.ModelSerializer):
           "module_id": int,
           "document_id": int,
           "created_by": int,
+          "quiz": int,
             "code": str,
             "title": str,
             "description": str
@@ -168,6 +169,7 @@ class ModuleSerializer(serializers.ModelSerializer):
         """        POST payload: {
           "module_id": int,
           "document_id": int,
+            "quiz": int,
           "created_by": int,
             "code": str,
             "title": str,

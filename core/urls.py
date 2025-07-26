@@ -10,7 +10,6 @@ from .views import (
     QuizViewSet,
     QuizAttemptViewSet,
     UserViewSet,
-    MyTokenRefreshView,
     ModuleViewSet,
 )
 

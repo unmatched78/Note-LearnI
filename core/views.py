@@ -248,3 +248,20 @@ class ModuleViewSet(viewsets.ModelViewSet):
 
         module.documents.add(document)
         return Response({"detail": "Document added to module"}, status=200)
+    
+    @action(detail=False, methods=['post'])
+    def add_quiz(self, request):
+        """
+        POST payload: {
+          "module_id": int,
+          "quiz_id": int,
+        }
+        """
+        module_id = request.data.get('module_id')
+        document_id = request.data.get('quiz_id')
+
+        module = get_object_or_404(Module, id=module_id, created_by=request.user)
+        document = get_object_or_404(Quiz, id=quiz_id)
+
+        module.documents.add(document)
+        return Response({"detail": "Document added to module"}, status=200)
