@@ -1,5 +1,5 @@
 // src/components/Dashboard.tsx
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { useUser, useClerk } from '@clerk/clerk-react';
 
 const Dashboard: FC = () => {
