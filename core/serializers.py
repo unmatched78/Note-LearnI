@@ -36,7 +36,7 @@ class MyTokenRefreshSerializer(TokenRefreshSerializer):
         data['user'] = {
             'id':       user.id,
             'username': user.username,
-            'email':    user.email,
+            'email':    user.email if hasattr(user, 'email') else None,
             'role':     getattr(user, 'role', None),
             # …any other fields/seria lizer if you prefer…
         }
