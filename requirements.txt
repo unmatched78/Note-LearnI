@@ -22,3 +22,4 @@ django-shortuuidfield
 svix
 clerk-backend-api
 pydantic
+fastapi
