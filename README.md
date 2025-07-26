@@ -1,5 +1,5 @@
 # AI Learning Platform
-
+![Alt text](Docs/example.png)
 Welcome to the **AI Learning Platform**, a comprehensive, full-stack digital ecosystem engineered to support and optimize student learning through structured resource organization, intelligent recommendations, and interactive progress monitoring.
 
 > Empowering learners to realize their academic aspirations through intelligent, data-driven pathways.
