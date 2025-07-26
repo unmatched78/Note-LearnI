@@ -324,7 +324,7 @@ export default function Sidebar({ user, recentQuizzes, onLogout }: SidebarProps)
             title="Sign Out"
           >
             <LogOut />
-            {!isCollapsed && <span className="mr-7 action-counter">Sign Out</span>}
+            {!isCollapsed && <span className="mr-7 ">Sign Out</span>}
           </Button>
         </div>
       </div>
