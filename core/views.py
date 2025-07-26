@@ -258,7 +258,7 @@ class ModuleViewSet(viewsets.ModelViewSet):
         }
         """
         module_id = request.data.get('module_id')
-        document_id = request.data.get('quiz_id')
+        quiz_id = request.data.get('quiz_id')
 
         module = get_object_or_404(Module, id=module_id, created_by=request.user)
         document = get_object_or_404(Quiz, id=quiz_id)
