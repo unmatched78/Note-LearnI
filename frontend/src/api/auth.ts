@@ -61,9 +61,9 @@ export function logoutUser() {
   clearTokens();
 }
 
-// ─── 4) FETCH CURRENT USER: GET /api/users/me/ ───────────────────────────────────
+// ─── 4) FETCH CURRENT USER: GET /api/auth/refresh/ ───────────────────────────────────
 export async function fetchCurrentUser(): Promise<UserData> {
-  // Be sure you add a “/api/users/me/” URL on the Django side (see below).
-  const response = await api.get<UserData>("/users/me/");
+  // Be sure you add a “/api/auth/refresh/” URL on the Django side (see below).
+  const response = await api.get<UserData>("/auth/refresh/");
   return response.data;
 }
