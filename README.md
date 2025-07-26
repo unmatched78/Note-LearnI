@@ -249,4 +249,4 @@ git push origin feature/your-feature-name
 
 ## Licensing Information
 
-This project is made available under the terms of the [MIT License](LICENSE).
+This project is made available under the terms of the [GNU General Public License v3.0](LICENSE).
