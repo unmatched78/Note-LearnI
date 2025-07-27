@@ -6,7 +6,7 @@ import LandingPage from './pages/LandingPage'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
 import AuthPage from './components/AuthPage';
-import Dashboard from './components/Dashboard';
+import  HomePage from './pages/Dashboard';
 import { useUser } from '@clerk/clerk-react';
 
 
@@ -46,7 +46,7 @@ function App() {
                 <Navigate to="/sign-in" replace />
               </SignedOut>
               <SignedIn>
-                <Dashboard />
+                < HomePage />
               </SignedIn>
             </>
           }
