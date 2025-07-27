@@ -1,63 +1,69 @@
 // src/App.tsx
-import QuizPage from './pages/QuizPage'
-import LandingPage from './pages/LandingPage'
-// import LoginPage from './pages/LoginPage'
-// import RegisterPage from './pages/RegisterPage'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
-import AuthPage from './components/AuthPage';
-import  HomePage from './pages/Dashboard';
-import { useUser } from '@clerk/clerk-react';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
 
+import LandingPage from "./pages/LandingPage";
+import QuizPage from "./pages/QuizPage";
+import HomePage from "./pages/Dashboard";
+import AuthPage from "./components/AuthPage";
 
-function App() {
-  const { user, isLoaded, isSignedIn } = useUser(); // user
+export default function App() {
+  const { isLoaded, isSignedIn } = useUser();
 
+  // 1) Clerk is initializing: show spinner
+  if (!isLoaded) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="w-16 h-16 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  // 2) Clerk loaded: render routes
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/sign-in" element={<AuthPage mode="sign-in" />} />
         <Route path="/sign-up" element={<AuthPage mode="sign-up" />} />
-        {/* <Route path="/login" element={user ? <Navigate to="/quiz" replace /> : <LoginPage />} />
-        <Route path="/register" element={user ? <Navigate to="/quiz" replace /> : <RegisterPage />} /> */}
+
+        {/* Protected: /quiz */}
         <Route
           path="/quiz"
           element={
-            <>
-            <SignedOut>
-                <Navigate to="/sign-in" replace />
-            </SignedOut>
-              <SignedIn>
+            isSignedIn ? (
               <QuizPage />
-              </SignedIn>
-            </>
-
+            ) : (
+              <Navigate to="/sign-in" replace state={{ from: "/quiz" }} />
+            )
           }
         />
 
-
-
+        {/* Protected: /dashboard */}
         <Route
           path="/dashboard"
           element={
-            <>
-              <SignedOut>
-                <Navigate to="/sign-in" replace />
-              </SignedOut>
-              <SignedIn>
-                < HomePage />
-              </SignedIn>
-            </>
+            isSignedIn ? (
+              <HomePage />
+            ) : (
+              <Navigate to="/sign-in" replace state={{ from: "/dashboard" }} />
+            )
           }
         />
+
+        {/* Catch‑all: redirect based on auth */}
         <Route
           path="*"
-          element={<Navigate to={user ? '/quiz' : '/sign-in'} replace />}
+          element={
+            isSignedIn ? (
+              <Navigate to="/quiz" replace />
+            ) : (
+              <Navigate to="/sign-in" replace />
+            )
+          }
         />
       </Routes>
     </BrowserRouter>
-  )
+  );
 }
-
-export default App
