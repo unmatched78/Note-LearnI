@@ -24,9 +24,15 @@ function App() {
         <Route
           path="/quiz"
           element={
-            
+            <>
+            <SignedOut>
+                <Navigate to="/sign-in" replace />
+            </SignedOut>
+              <SignedIn>
               <QuizPage />
-            
+              </SignedIn>
+            </>
+
           }
         />
 
