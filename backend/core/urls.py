@@ -21,7 +21,6 @@ router.register(r'modules',   ModuleViewSet,   basename='module')
 
 urlpatterns = [
     # 1) Public /auth endpoints FIRST
-    path('api/auth/register/',       RegisterView.as_view(),       name='auth_register'),
     path("api/webhooks/clerk/", clerk_webhook, name="clerk_webhook"),
 
     # 2) Then everything else under /api/
