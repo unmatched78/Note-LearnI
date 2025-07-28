@@ -1,5 +1,5 @@
 from rest_framework import viewsets, status, generics, permissions
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.response import Response
 from core.auth.authentication import ClerkAuthentication as JWTAuthentication
 from rest_framework.decorators import action
@@ -226,4 +226,123 @@ class ModuleViewSet(viewsets.ModelViewSet):
 from .utils.summarize import generate_summary
 from .utils.transcribe import transcribe_media
 from .utils.flashcard import generate_flashcards
+class SummaryViewSet(viewsets.ModelViewSet):
+    queryset = Summary.objects.all().order_by('-created_at')
+    serializer_class = SummarySerializer
+    permission_classes = [IsAuthenticated]
+    parser_classes = [JSONParser]
 
+    def perform_create(self, serializer):
+        serializer.save(generated_by=self.request.user)
+
+    @action(detail=False, methods=['post'])
+    def generate(self, request):
+        """
+        POST payload:
+          {
+            "document": <doc_id>,
+            "length": "medium",
+            "include_key_points": true,
+            "focus_areas": "..."
+          }
+        """
+        doc_id = request.data.get("document")
+        doc = Document.objects.filter(id=doc_id, user=request.user).first()
+        if not doc:
+            return Response({"detail": "Document not found."}, status=404)
+
+        length = request.data.get("length", "medium")
+        include = request.data.get("include_key_points", True)
+        focus = request.data.get("focus_areas", "")
+        # assume doc.description holds the text chunks or full text
+        chunks = doc.description.splitlines()
+        summary_text = generate_summary(chunks, length, include, focus)
+
+        summary = Summary.objects.create(
+            document=doc,
+            generated_by=request.user,
+            length=length,
+            include_key_points=include,
+            focus_areas=focus,
+            content=summary_text,
+        )
+        return Response(SummarySerializer(summary).data, status=201)
+
+
+class TranscriptViewSet(viewsets.ModelViewSet):
+    queryset = Transcript.objects.all().order_by('-created_at')
+    serializer_class = TranscriptSerializer
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=['post'])
+    def generate(self, request):
+        """
+        POST payload:
+          {
+            "document": <doc_id>,
+            "language": "english",
+            "speaker_identification": false,
+            "generate_summary": false
+          }
+        """
+        doc = Document.objects.filter(
+            id=request.data.get("document"), user=request.user
+        ).first()
+        if not doc:
+            return Response({"detail": "Document not found."}, status=404)
+
+        lang = request.data.get("language", "english")
+        speaker = request.data.get("speaker_identification", False)
+        gen_sum = request.data.get("generate_summary", False)
+
+        # if you have a URL for the file, pass that; here we'll use doc.file.url
+        result = transcribe_media(doc.file.url, lang, speaker, gen_sum)
+        transcript = Transcript.objects.create(
+            document=doc,
+            generated_by=request.user,
+            language=lang,
+            speaker_identification=speaker,
+            transcript=result["transcript"],
+            summary=result.get("summary", None),
+        )
+        return Response(TranscriptSerializer(transcript).data, status=201)
+
+
+class FlashcardViewSet(viewsets.ModelViewSet):
+    queryset = FlashcardSet.objects.all().order_by('-created_at')
+    serializer_class = FlashcardSetSerializer
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=['post'])
+    def generate(self, request):
+        """
+        POST payload:
+          {
+            "document": <doc_id>,
+            "num_cards": 10,
+            "difficulty": "medium",
+            "focus_topics": ""
+          }
+        """
+        doc = Document.objects.filter(
+            id=request.data.get("document"), user=request.user
+        ).first()
+        if not doc:
+            return Response({"detail": "Document not found."}, status=404)
+
+        n = int(request.data.get("num_cards", 10))
+        diff = request.data.get("difficulty", "medium")
+        focus = request.data.get("focus_topics", "")
+
+        chunks = doc.description.splitlines()
+        cards = generate_flashcards(chunks, n, diff, focus)
+
+        fcset = FlashcardSet.objects.create(
+            document=doc,
+            generated_by=request.user,
+            num_cards=n,
+            difficulty=diff,
+            focus_topics=focus,
+            cards=cards,
+        )
+        return Response(FlashcardSetSerializer(fcset).data, status=201)

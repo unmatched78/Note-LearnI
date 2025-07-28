@@ -128,3 +128,26 @@ class ModuleSerializer(serializers.ModelSerializer):
         if Module.objects.filter(code=value).exists():
             raise serializers.ValidationError("This code is already in use by another module.")
         return value
+    
+    
+#feature based serializers;
+class SummarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Summary
+        fields = ["id", "document", "generated_by", "length", "include_key_points",
+                  "focus_areas", "content", "created_at"]
+        read_only_fields = ["id", "generated_by", "content", "created_at"]
+
+class TranscriptSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Transcript
+        fields = ["id", "document", "generated_by", "language",
+                  "speaker_identification", "transcript", "summary", "created_at"]
+        read_only_fields = ["id", "generated_by", "transcript", "summary", "created_at"]
+
+class FlashcardSetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FlashcardSet
+        fields = ["id", "document", "generated_by", "num_cards",
+                  "difficulty", "focus_topics", "cards", "created_at"]
+        read_only_fields = ["id", "generated_by", "cards", "created_at"]

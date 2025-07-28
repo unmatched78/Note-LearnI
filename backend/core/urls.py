@@ -9,6 +9,9 @@ from .views import (
     QuizAttemptViewSet,
     UserViewSet,
     ModuleViewSet,
+    SummaryViewSet,
+    TranscriptViewSet,
+    FlashcardViewSet
 )
 
 router = DefaultRouter()
@@ -17,6 +20,9 @@ router.register(r'quizzes',   QuizViewSet,     basename='quiz')
 router.register(r'attempts',  QuizAttemptViewSet, basename='attempt')
 router.register(r'users',     UserViewSet,     basename='user')
 router.register(r'modules',   ModuleViewSet,   basename='module')
+router.register(r'summaries', SummaryViewSet, basename='summary')
+router.register(r'transcripts', TranscriptViewSet, basename='transcript')
+router.register(r'flashcards', FlashcardViewSet, basename='flashcard')
 
 
 urlpatterns = [

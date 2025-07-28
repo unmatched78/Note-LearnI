@@ -112,3 +112,49 @@ class Module(Timer):
 
     def __str__(self):
         return f"{self.title} by {self.created_by} and {self.code}"
+
+#feature based model
+class Summary(models.Model):
+    """
+    Stores a generated summary for a Document.
+    """
+    document = models.ForeignKey('Document', on_delete=models.CASCADE, related_name='summaries')
+    generated_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    length = models.CharField(max_length=20)  # e.g. "short"/"medium"/"long"
+    include_key_points = models.BooleanField(default=True)
+    focus_areas = models.TextField(blank=True)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Summary({self.length}) of {self.document.title}"
+
+class Transcript(models.Model):
+    """
+    Stores a transcript (and optional summary) of uploaded media.
+    """
+    document = models.ForeignKey('Document', on_delete=models.CASCADE, related_name='transcripts')
+    generated_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    language = models.CharField(max_length=30, default='english')
+    speaker_identification = models.BooleanField(default=False)
+    transcript = models.TextField()
+    summary = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Transcript of {self.document.title}"
+
+class FlashcardSet(models.Model):
+    """
+    A set of AI‑generated flashcards for a Document.
+    """
+    document = models.ForeignKey('Document', on_delete=models.CASCADE, related_name='flashcard_sets')
+    generated_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    num_cards = models.PositiveIntegerField()
+    difficulty = models.CharField(max_length=20)
+    focus_topics = models.TextField(blank=True)
+    cards = models.JSONField()  # list of {"front": "...", "back": "..."}
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.num_cards} flashcards for {self.document.title}"
