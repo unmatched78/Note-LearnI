@@ -1,0 +1,27 @@
+.env
+store.txt
+# app.py
+.qodo
+db.sqlite
+readme
+test
+venv
+venv311
+media
+__pycache__
+*.pyc
+*.pyo
+*.pyd   
+*.db
+*.sqlite
+*.sqlite3
+*.log
+*.pid
+*.swp               
+*.swo
+*.bak
+*.tmp
+*.orig
+*.DS_Store
+*.idea
+media
