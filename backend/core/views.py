@@ -218,3 +218,12 @@ class ModuleViewSet(viewsets.ModelViewSet):
 
         module.quiz.add(document)
         return Response({"detail": "Document added to module"}, status=200)
+    
+"""
+   feature based classes
+"""
+
+from .utils.summarize import generate_summary
+from .utils.transcribe import transcribe_media
+from .utils.flashcard import generate_flashcards
+
