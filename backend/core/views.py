@@ -229,6 +229,7 @@ from .utils.flashcard import generate_flashcards
 class SummaryViewSet(viewsets.ModelViewSet):
     queryset = Summary.objects.all().order_by('-created_at')
     serializer_class = SummarySerializer
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     parser_classes = [JSONParser]
 
@@ -272,6 +273,7 @@ class SummaryViewSet(viewsets.ModelViewSet):
 class TranscriptViewSet(viewsets.ModelViewSet):
     queryset = Transcript.objects.all().order_by('-created_at')
     serializer_class = TranscriptSerializer
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     @action(detail=False, methods=['post'])
@@ -311,6 +313,7 @@ class TranscriptViewSet(viewsets.ModelViewSet):
 class FlashcardViewSet(viewsets.ModelViewSet):
     queryset = FlashcardSet.objects.all().order_by('-created_at')
     serializer_class = FlashcardSetSerializer
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     @action(detail=False, methods=['post'])
