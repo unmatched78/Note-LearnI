@@ -140,6 +140,27 @@ const HomePage = () => {
             <FileText size={18} />
             <span>My Modules</span>
           </Link>
+          <Link
+            to="/resources"
+            className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-muted-foreground"
+          >
+            <BookOpen size={18} />
+            <span>Resources</span>
+          </Link>
+          <Link
+            to="/ai-tools"
+            className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-muted-foreground"
+          >
+            <Zap size={18} />
+            <span>AI Tools</span>
+          </Link>
+          <Link
+            to="/schedule"
+            className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-muted-foreground"
+          >
+            <Calendar size={18} />
+            <span>Study Schedule</span>
+          </Link>
         </nav>
 
         <div className="mt-auto pt-4 border-t">
