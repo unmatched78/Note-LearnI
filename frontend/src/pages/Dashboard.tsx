@@ -154,13 +154,13 @@ const HomePage = () => {
             <Zap size={18} />
             <span>AI Tools</span>
           </Link>
-          <Link
+          {/* <Link
             to="/schedule"
             className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-muted-foreground"
           >
             <Calendar size={18} />
             <span>Study Schedule</span>
-          </Link>
+          </Link> */}
         </nav>
 
         <div className="mt-auto pt-4 border-t">
