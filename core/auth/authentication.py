@@ -56,7 +56,9 @@ class ClerkAuthentication(authentication.BaseAuthentication):
                 )
             )
         except Exception as exc:
-            raise exceptions.AuthenticationFailed(f"Clerk auth error: {exc}")
+            import logging
+            logging.error(f"Clerk authentication error: {exc}")
+            raise exceptions.AuthenticationFailed("Authentication failed due to an internal error.")
 
         # Ensure user is signed in
         if not request_state.is_signed_in:
