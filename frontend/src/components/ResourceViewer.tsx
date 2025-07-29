@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
@@ -27,19 +26,14 @@ import {
   Mic,
   Download,
   Share,
-  Bookmark,
   BookmarkPlus,
   MessageSquare,
   PenTool,
-  Highlighter,
-  StickyNote,
   ChevronLeft,
   ChevronRight,
   ZoomIn,
   ZoomOut,
   RotateCw,
-  Search,
-  Paperclip,
   Plus,
 } from "lucide-react";
 

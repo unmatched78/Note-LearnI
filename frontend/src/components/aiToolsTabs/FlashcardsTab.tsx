@@ -1,5 +1,5 @@
 // components/aiToolsTabs/FlashcardsTab.tsx
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
