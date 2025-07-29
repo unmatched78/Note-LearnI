@@ -229,7 +229,7 @@ python manage.py migrate
 ## Contribution Guidelines
 
 We welcome scholarly contributions. To contribute:
-The better is to start from Todos[https://github.com/unmatched78/Note-LearnI/blob/main/Docs/TODOs.md]
+The better is to start from [Todos](https://github.com/unmatched78/Note-LearnI/blob/main/Docs/TODOs.md)
 
 Otherwise;
 
