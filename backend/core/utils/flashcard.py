@@ -49,6 +49,7 @@ def generate_flashcards(text_chunks, num_cards=10, difficulty="medium", focus_to
     }
 }
         )
+        print(resp.choices[0].message.json())
         return resp.choices[0].message.json()  # Parses JSON response automatically
     except Exception as e:
         logger.error("Flashcard generation failed: %s", e)

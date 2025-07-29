@@ -1,20 +1,55 @@
 // components/aiToolsTabs/FlashcardsTab.tsx
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import { Select, SelectTrigger,SelectContent, SelectItem,SelectValue  } from "@/components/ui/select";
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Plus, BookOpen, Lightbulb, Loader2 } from "lucide-react";
+import { useApi } from "@/api/api";
 
 interface FlashcardsTabProps {
-  selectedResource?: { name: string; type: string };
-  isProcessing: boolean;
-  onProcess: () => void;
+  selectedResource?: { id: number; name: string; type: string };
+  onGenerateContent: (payload: { type: string; content: any }) => void;
 }
 
-export default function FlashcardsTab({ selectedResource, isProcessing, onProcess }: FlashcardsTabProps) {
+export default function FlashcardsTab({ selectedResource, onGenerateContent }: FlashcardsTabProps) {
+  const { fetchJson } = useApi();
+  const [numCards, setNumCards] = useState<number>(10);
+  const [difficulty, setDifficulty] = useState<string>("medium");
+  const [focusTopics, setFocusTopics] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const handleGenerate = async () => {
+    if (!selectedResource) return;
+    setIsLoading(true);
+    try {
+      const payload = {
+        document: selectedResource.id,
+        num_cards: numCards,
+        difficulty,
+        focus_topics: focusTopics,
+      };
+      const response = await fetchJson<any>(
+        "/flashcards/generate/",
+        {
+          method: "POST",
+          body: JSON.stringify(payload),
+        }
+      );
+      const rawCards = response.cards;
+      const cards = Array.isArray(rawCards)
+        ? rawCards
+        : rawCards?.flashcard ?? [];
+      onGenerateContent({ type: "flashcards", content: cards });
+    } catch (error: any) {
+      console.error("Flashcard generation error:", error);
+      alert(error.message || "Failed to generate flashcards");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="mt-4 space-y-4">
       <div className="space-y-2">
@@ -29,7 +64,7 @@ export default function FlashcardsTab({ selectedResource, isProcessing, onProces
           </div>
         ) : (
           <div className="flex items-center justify-center p-6 border border-dashed rounded-md">
-            <Button variant="outline" className="flex items-center gap-2">
+            <Button variant="outline" className="flex items-center gap-2" disabled>
               <Plus className="h-4 w-4" /> Select Resource
             </Button>
           </div>
@@ -37,13 +72,21 @@ export default function FlashcardsTab({ selectedResource, isProcessing, onProces
       </div>
 
       <div className="space-y-2">
-        <Label>Number of Flashcards</Label>
-        <Slider defaultValue={[10]} max={50} step={5} />
+        <Label>Number of Flashcards: {numCards}</Label>
+        <Slider
+          value={[numCards]}
+          max={50}
+          step={5}
+          onValueChange={([val]) => setNumCards(val)}
+        />
+        <div className="flex justify-between text-xs text-muted-foreground mt-1">
+          <span>5</span><span>25</span><span>50</span>
+        </div>
       </div>
 
       <div className="space-y-2">
         <Label>Difficulty Level</Label>
-        <Select defaultValue="medium">
+        <Select defaultValue={difficulty} onValueChange={setDifficulty}>
           <SelectTrigger>
             <SelectValue placeholder="Select difficulty" />
           </SelectTrigger>
@@ -56,15 +99,20 @@ export default function FlashcardsTab({ selectedResource, isProcessing, onProces
       </div>
 
       <div className="space-y-2">
-        <Label>Focus Topics (optional)</Label>     <Input placeholder="Enter specific topics to focus on" />
+        <Label>Focus Topics (optional)</Label>
+        <Input
+          value={focusTopics}
+          onChange={(e) => setFocusTopics(e.target.value)}
+          placeholder="Enter specific topics to focus on"
+        />
       </div>
 
       <Button
         className="w-full"
-        onClick={onProcess}
-        disabled={isProcessing || !selectedResource}
+        onClick={handleGenerate}
+        disabled={isLoading || !selectedResource}
       >
-        {isProcessing ? (
+        {isLoading ? (
           <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating Flashcards...</>
         ) : (
           <><Lightbulb className="mr-2 h-4 w-4" /> Generate Flashcards</>
