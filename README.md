@@ -83,7 +83,7 @@ flowchart LR
     A[React Client] -- HTTP/HTTPS --> B[Django REST API + clerk validation SDK]
     B --> C[Neon PostgreSQL]
     B -- JWT Auth --> A
-    B --> D[MCP Tool SQE[|utils] + views] --> E[AI/ML Models API]
+    B --> D[MCP Tool SQE utils + views] --> E[AI/ML Models API]
     A --> F[ShadcnUI, TailwindCSS]
 ```
 
