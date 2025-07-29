@@ -40,7 +40,7 @@ The AI Learning Platform is an advanced educational technology framework designe
 
 Key objectives include:
 
-* Centralizing diverse learning materials (e.g., lecture notes, videos, readings)
+* Centralizing diverse learning materials (e.g.,learning quiz, lecture notes, videos, readings)
 * Generating intelligent study pathways tailored to user behavior
 * Supporting peer-to-peer content exchange and review
 * Enabling comprehensive performance tracking through data visualization
@@ -80,7 +80,7 @@ Key objectives include:
 
 ```mermaid
 flowchart LR
-    A[React Client] -- HTTP/HTTPS --> B[Django REST API]
+    A[React Client] -- HTTP/HTTPS --> B[Django REST API + clerk validation SDK]
     B --> C[Neon PostgreSQL]
     B -- JWT Auth --> A
     B --> D[MCP Tool] --> E[AI/ML Models]
@@ -109,7 +109,7 @@ flowchart LR
 1. **Repository Setup**
 
 ```bash
-git clone https://github.com/unmatched/note-learn.git
+git clone https://github.com/unmatched/Note-Learn.git
 cd note-learn
 ```
 
@@ -182,7 +182,7 @@ python manage.py migrate
 
 ## Security and Authentication
 
-* **JWT Implementation** via `djangorestframework-simplejwt`:
+* **JWT Implementation** via `djangorestframework + clerk SDK`:
 
   * Dual-token structure (access/refresh)
   * Supports token rotation and blacklist
@@ -200,8 +200,6 @@ python manage.py migrate
 
 | Endpoint         | Method   | Purpose                                     |
 | ---------------- | -------- | ------------------------------------------- |
-| `/auth/login/`   | POST     | Obtain access and refresh tokens            |
-| `/auth/refresh/` | POST     | Generate a new access token                 |
 | `/users/`        | GET/POST | List or create new user profiles            |
 | `/materials/`    | GET/POST | Upload or retrieve learning resources       |
 | `/plans/`        | GET/POST | Manage user-specific study schedules        |
