@@ -6,8 +6,6 @@ from django.core.exceptions import ValidationError
 import json
 from django.utils import timezone
 from shortuuidfield import ShortUUIDField
-# from django.contrib.auth import get_user_model
-# User = get_user_model()
 from django.conf import settings
 User= settings.AUTH_USER_MODEL
 

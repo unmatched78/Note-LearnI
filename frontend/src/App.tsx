@@ -6,7 +6,7 @@ import LandingPage from "./pages/LandingPage";
 import QuizPage from "./pages/QuizPage";
 import HomePage from "./pages/Dashboard";
 import AuthPage from "./components/AuthPage";
-import AIToolsPanel from "./pages/AIToolsPanel"
+import AIToolsPanel from "./pages/AIToolsPage"
 import ResourceViewer from "./pages/ResourceViewer"
 
 export default function App() {
