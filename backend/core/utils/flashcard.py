@@ -25,6 +25,29 @@ def generate_flashcards(text_chunks, num_cards=10, difficulty="medium", focus_to
                 {"role": "system", "content": "You generate study flashcards."},
                 {"role": "user", "content": prompt},
             ],
+            response_format = {
+    "type": "json_schema",
+    "json_schema": {
+       "name": "flashcard_schema",
+       "schema": {
+                "type": "object",
+        "properties": {
+            "flashcard": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "front": {"type": "string"},
+                        "back": {"type": "string"}
+                    },
+                    "required": ["front", "back"],
+                    "additionalProperties": False
+                }
+            }
+        }
+       }
+    }
+}
         )
         return resp.choices[0].message.json()  # Parses JSON response automatically
     except Exception as e:
