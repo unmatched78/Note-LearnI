@@ -72,9 +72,9 @@ export default function AIToolsPage() {
         <div className="max-w-7xl mx-auto p-4 flex justify-between">
           <h1 className="text-2xl font-bold">AI Study Hub</h1>
           <nav className="ml-140 flex flex-row flex-1">
-            <Link to="/" className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-muted-foreground">
+            <Link to="/dashboard" className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-muted-foreground">
               <FileText size={18} />
-              <span>My Modules</span>
+              <span>Dashboard</span>
             </Link>
             <Link to="/resources" className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-muted-foreground">
               <BookOpen size={18} />
