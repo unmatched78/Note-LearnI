@@ -15,7 +15,7 @@ export default function SidebarContainer() {
 
   return (
     <motion.div
-      className="fixed top-0 left-0 h-full z-50 shadow-lg"
+      className="fixed top-0 left-0 h-full z-50 shadow-lg shadow-2xl hover:ring-4 hover:ring-indigo-400/50 transition-all duration-300"
       animate={{ x: expanded ? 0 : -width + peek }}
       transition={{ type: 'tween', duration: 0.3 }}
       style={{ width, overflow: 'hidden' }}

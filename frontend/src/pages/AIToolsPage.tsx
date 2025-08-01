@@ -11,11 +11,16 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { FileText, Upload } from "lucide-react";
 import FlashcardsList from "@/components/FlashcardsList";
 import MarkdownDisplay from "@/components/MarkdownDisplay";
 import TranscriptDisplay from "@/components/TranscriptDisplay";
 import SidebarContainer from "@/components/SidebarContainer";
+import { Link } from "react-router-dom";
+import { BookOpen, FileText, Upload, Zap } from "lucide-react";
+import { ModeToggle } from "@/components/mode-toggle";
+import { useUser, SignInButton, SignUpButton, UserButton } from '@clerk/clerk-react';
+import { LogOut } from "lucide-react";
+
 interface Resource {
   id: number;
   name: string;
@@ -66,6 +71,24 @@ export default function AIToolsPage() {
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto p-4 flex justify-between">
           <h1 className="text-2xl font-bold">AI Study Hub</h1>
+          <nav className="ml-140 flex flex-row flex-1">
+            <Link to="/" className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-muted-foreground">
+              <FileText size={18} />
+              <span>My Modules</span>
+            </Link>
+            <Link to="/resources" className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-muted-foreground">
+              <BookOpen size={18} />
+              <span>Resources</span>
+            </Link>
+            <Link to="/ai-tools" className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-muted-foreground">
+              <Zap size={18} />
+              <span>AI Tools</span>
+            </Link>
+           <div className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-muted-foreground">
+            <UserButton />
+            <ModeToggle />
+          </div>
+          </nav>
         </div>
       </header>
 
@@ -250,15 +273,15 @@ export default function AIToolsPage() {
                   />
                 )}
 
-                    {/* Transcript */}
-                    {generatedContent?.type === "transcribe" && (
-                      <TranscriptDisplay
-                        transcript={generatedContent.content.transcript}
-                        summary={generatedContent.content.summary}
-                        media_url={generatedContent.content.media_url}
-                      />
-                    )}
-                  
+                {/* Transcript */}
+                {generatedContent?.type === "transcribe" && (
+                  <TranscriptDisplay
+                    transcript={generatedContent.content.transcript}
+                    summary={generatedContent.content.summary}
+                    media_url={generatedContent.content.media_url}
+                  />
+                )}
+
               </CardContent>
             </Card>
           )}
