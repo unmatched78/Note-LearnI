@@ -10,6 +10,9 @@
 - [ ] Add & create public endpoint for public clean notes sharing for students to help others learn and find notes easily
 - [ ] Allow retrival and redoing previously done quizzes priotitizing what got wrong in the quiz
 - [ ] Allow shortcuts for indexing, searching bewteen activity and notes and more like navigations
+- [ ] Implement golas setting and followup
+- [ ] Implement setting Timer for study and reminders
+- [ ] Implement notifications and preference with settings
 - [ ] more and more
 - [ ] Another task
 
