@@ -173,23 +173,54 @@ export default function AIToolsPage() {
 
                 {generatedContent.type === "quizResult" &&
                   Array.isArray(generatedContent.content) && (
-                    <div className="space-y-2">
+                    <div className="space-y-6">
+                      {/* Total Score */}
+                      <div className="text-xl font-bold">
+                        Score: {generatedContent.content.filter((f: QuizFeedback) => f.is_correct).length}
+                        /{generatedContent.content.length}
+                      </div>
+
+                      {/* Detailed per-question feedback */}
                       {generatedContent.content.map((f: QuizFeedback, i: number) => (
-                        <div
-                          key={i}
-                          className={f.is_correct ? "text-green-600" : "text-red-600"}
-                        >
-                          <p className="font-semibold">{f.question}</p>
-                          <p>
-                            Your answer: {f.student_answer} —{' '}
-                            {f.is_correct
-                              ? '✅'
-                              : `❌ (Correct: ${f.correct_answer})`}
-                          </p>
+                        <div key={i} className="p-4 border rounded">
+                          <p className="font-semibold mb-2">Q{i + 1}: {f.question}</p>
+
+                          {/* Show all choices */}
+                          <ul className="space-y-1 mb-2">
+                            {f.options.map(opt => {
+                              const isCorrect = opt === f.correct_answer;
+                              const isSelected = opt === f.student_answer;
+                              let style = "";
+                              if (isCorrect) style = "bg-green-100 text-green-800";
+                              else if (isSelected && !f.is_correct) style = "bg-red-100 text-red-800";
+                              return (
+                                <li
+                                  key={opt}
+                                  className={`px-2 py-1 rounded ${style}`}
+                                >
+                                  {opt}
+                                  {isCorrect && " ✓"}
+                                  {isSelected && !f.is_correct && " ✗"}
+                                </li>
+                              );
+                            })}
+                          </ul>
+
+                          {/* Summary message */}
+                          <div className="text-sm">
+                            {f.is_correct ? (
+                              <span className="text-green-600">You got this right!</span>
+                            ) : (
+                              <span className="text-red-600">
+                                Your answer: {f.student_answer} — Correct: {f.correct_answer}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>
                   )}
+
 
                 {['summarize', 'transcribe'].includes(
                   generatedContent.type
