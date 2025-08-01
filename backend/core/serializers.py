@@ -141,9 +141,12 @@ class SummarySerializer(serializers.ModelSerializer):
 class TranscriptSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transcript
-        fields = ["id", "document", "generated_by", "language",
-                  "speaker_identification", "transcript", "summary", "created_at"]
+        fields = [
+            "id", "media_url", "generated_by", "language",
+            "speaker_identification", "transcript", "summary", "created_at"
+        ]
         read_only_fields = ["id", "generated_by", "transcript", "summary", "created_at"]
+
 
 class FlashcardSetSerializer(serializers.ModelSerializer):
     class Meta:

@@ -127,22 +127,25 @@ class Summary(models.Model):
     def __str__(self):
         return f"Summary({self.length}) of {self.document.title}"
 
-class Transcript(models.Model):
+class Transcript(Timer):
     """
     Stores a transcript (and optional summary) of uploaded media.
     """
-    document = models.ForeignKey('Document', on_delete=models.CASCADE, related_name='transcripts')
+    module = models.ManyToManyField('Module', blank=True, related_name='transcripts')
+    media_url = models.URLField(null=True, blank=True, help_text="URL of the media file, thi swill be filled in case for a youtube video")
+    audio_file=models.FileField(upload_to='transcripts/', null=True, blank=True)
     generated_by = models.ForeignKey(User, on_delete=models.CASCADE)
     language = models.CharField(max_length=30, default='english')
     speaker_identification = models.BooleanField(default=False)
     transcript = models.TextField()
     summary = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+
 
     def __str__(self):
-        return f"Transcript of {self.document.title}"
+        return f"Transcript of {self.generated_by.username}--{self.transcript[:80]}"
 
-class FlashcardSet(models.Model):
+
+class FlashcardSet(Timer):
     """
     A set of AI‑generated flashcards for a Document.
     """
@@ -152,7 +155,6 @@ class FlashcardSet(models.Model):
     difficulty = models.CharField(max_length=20)
     focus_topics = models.TextField(blank=True)
     cards = models.JSONField()  # list of {"front": "...", "back": "..."}
-    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.num_cards} flashcards for {self.document.title}"

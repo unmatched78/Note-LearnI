@@ -67,9 +67,14 @@ export default function AIToolsPanel({
       case "transcribe":
         return (
           <TranscribeTab
-            isProcessing={isProcessing}
-            onProcess={() => handleProcess("transcribe")}
+             selectedResource={selectedResource}
+              isProcessing={isProcessing && activeTab === "transcribe"} 
+            onGenerateContent={(payload) => { 
+              setIsProcessing(false);
+              onGenerateContent(payload);
+            }}
           />
+          
         );
       case "flashcards":
         return (

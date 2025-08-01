@@ -278,35 +278,70 @@ class TranscriptViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'])
     def generate(self, request):
+        #this is for the audio
         """
         POST payload:
           {
-            "document": <doc_id>,
+            "audio": file,
             "language": "english",
             "speaker_identification": false,
             "generate_summary": false
           }
         """
-        doc = Document.objects.filter(
-            id=request.data.get("document"), user=request.user
-        ).first()
-        if not doc:
-            return Response({"detail": "Document not found."}, status=404)
+        audio = request.data.get("audio")
+        if not audio:
+            return Response({"detail": "Audio file is required."}, status=400)
 
         lang = request.data.get("language", "english")
         speaker = request.data.get("speaker_identification", False)
         gen_sum = request.data.get("generate_summary", False)
 
         # if you have a URL for the file, pass that; here we'll use doc.file.url
-        result = transcribe_media(doc.file.url, lang, speaker, gen_sum)
+        result = transcribe_media(audio, lang, speaker, gen_sum)
         transcript = Transcript.objects.create(
-            document=doc,
+            audio_file=audio,
             generated_by=request.user,
             language=lang,
             speaker_identification=speaker,
             transcript=result["transcript"],
             summary=result.get("summary", None),
         )
+        return Response(TranscriptSerializer(transcript).data, status=201)
+    @action(detail=False, methods=["post"])
+    def youtube(self, request):
+        #this is for youtube
+        """
+        POST payload:
+          {
+            "youtube_url": "https://www.youtube.com/watch?v=xyz123",
+            "language": "en",
+            "generate_summary": true
+          }
+        """
+        from core.utils.youtube import transcribe_youtube_video
+    
+        url = request.data.get("youtube_url")
+        if not url:
+            return Response({"detail": "YouTube URL is required."}, status=400)
+        
+    
+        language = request.data.get("language", "en")
+        generate_summary = request.data.get("generate_summary", False)
+
+        try:
+           result = transcribe_youtube_video(url, language=language, generate_summary=generate_summary)
+        except ValueError as ve:
+          return Response({"detail": str(ve)}, status=400)
+    
+        transcript = Transcript.objects.create(
+            media_url=url,
+            generated_by=request.user,
+            language=language,
+            speaker_identification=False,
+            transcript=result["transcript"],
+            summary=result.get("summary", None),
+        )
+    
         return Response(TranscriptSerializer(transcript).data, status=201)
 
 

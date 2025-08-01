@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { FileText, Upload } from "lucide-react";
 import FlashcardsList from "@/components/FlashcardsList";
 import MarkdownDisplay from "@/components/MarkdownDisplay";
+import TranscriptDisplay from "@/components/TranscriptDisplay";
 interface Resource {
   id: number;
   name: string;
@@ -23,6 +24,11 @@ interface Resource {
 
 type QuizQuestion = { question: string; options: string[]; answer: string };
 type QuizFeedback = { question: string; student_answer: string; correct_answer: string; is_correct: boolean };
+// extract the 11-char ID from a YouTube URL
+function extractVideoId(url: string): string {
+  const m = url.match(/(?:v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : "";
+}
 
 export default function AIToolsPage() {
   const { fetchJson } = useApi();
@@ -243,29 +249,15 @@ export default function AIToolsPage() {
                   />
                 )}
 
-                {generatedContent.type === "transcribe" && (
-                  <MarkdownDisplay
-                    title="Transcript"
-                    content={generatedContent.content as string}
-                  />
-                )}
-
-
-                {/* {['summarize', 'transcribe'].includes(
-                  generatedContent.type
-                ) && (
-                    <ScrollArea className="h-96 p-4 border rounded">
-                      <pre className="whitespace-pre-wrap">
-                        {typeof generatedContent.content === 'string'
-                          ? generatedContent.content
-                          : Array.isArray(
-                            generatedContent.content
-                          )
-                            ? generatedContent.content.join('\n\n')
-                            : String(generatedContent.content)}
-                      </pre>
-                    </ScrollArea>
-                  )} */}
+                    {/* Transcript */}
+                    {generatedContent?.type === "transcribe" && (
+                      <TranscriptDisplay
+                        transcript={generatedContent.content.transcript}
+                        summary={generatedContent.content.summary}
+                        media_url={generatedContent.content.media_url}
+                      />
+                    )}
+                  
               </CardContent>
             </Card>
           )}
