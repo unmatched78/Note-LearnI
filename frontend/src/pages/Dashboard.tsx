@@ -99,7 +99,7 @@ const HomePage: React.FC = () => {
 
   const loadModules = async () => {
     try {
-      const data = await fetchJson<{ results: Module[] }>("modules");
+      const data = await fetchJson<{ results: Module[] }>("/modules/");
       setModules(data.results);
     } catch (err) {
       console.error("Error loading modules", err);
@@ -108,7 +108,7 @@ const HomePage: React.FC = () => {
 
   const loadRecentDocuments = async () => {
     try {
-      const data = await fetchJson<{ results: Document[] }>("documents");
+      const data = await fetchJson<{ results: Document[] }>("/documents/");
       setRecentDocuments(data.results.slice(0, 5));
     } catch (err) {
       console.error("Error loading documents", err);
@@ -117,7 +117,7 @@ const HomePage: React.FC = () => {
 
   const handleCreateModule = async () => {
     try {
-      const created = await fetchJson<Module>("modules", {
+      const created = await fetchJson<Module>("/modules/", {
         method: 'POST',
         body: JSON.stringify(newModule),
       });

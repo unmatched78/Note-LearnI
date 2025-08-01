@@ -1,4 +1,3 @@
-// src/pages/AIToolsPage.tsx
 import React, { useState, useRef, ChangeEvent } from "react";
 import { useApi } from "@/api/api";
 import AIToolsPanel from "@/components/AIToolsPanel";
@@ -21,13 +20,16 @@ interface Resource {
   type: string;
 }
 
+type QuizQuestion = { question: string; options: string[]; answer: string };
+type QuizFeedback = { question: string; student_answer: string; correct_answer: string; is_correct: boolean };
+
 export default function AIToolsPage() {
   const { fetchJson } = useApi();
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
-  const [generatedContent, setGeneratedContent] = useState<{
-    type: string;
-    content: any;
-  } | null>(null);
+  const [generatedContent, setGeneratedContent] = useState<{ type: string; content: any } | null>(null);
+
+  const [quizMeta, setQuizMeta] = useState<{ quizId: number; questions: QuizQuestion[] } | null>(null);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
 
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -44,13 +46,13 @@ export default function AIToolsPage() {
       });
       setSelectedResource({ id: res.id, name: file.name, type: "Document" });
       setGeneratedContent(null);
+      setQuizMeta(null);
+      setAnswers({});
     } catch (err) {
       console.error(err);
       alert("Failed to upload resource");
     }
   };
-
-  const isArray = (v: any): v is any[] => Array.isArray(v);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -86,10 +88,16 @@ export default function AIToolsPage() {
               </Card>
             )}
           </div>
-
           <AIToolsPanel
             selectedResource={selectedResource || undefined}
-            onGenerateContent={setGeneratedContent}
+            onGenerateContent={payload => {
+              setGeneratedContent(payload);
+              if (payload.type !== "quiz") {
+                setQuizMeta(null);
+                setAnswers({});
+              }
+            }}
+            onQuizMeta={meta => setQuizMeta(meta)}
           />
         </aside>
 
@@ -109,7 +117,7 @@ export default function AIToolsPage() {
               </CardHeader>
               <Separator />
               <CardContent>
-                {generatedContent.type === "flashcards" && isArray(generatedContent.content) && (
+                {generatedContent.type === "flashcards" && Array.isArray(generatedContent.content) && (
                   <ul className="space-y-4">
                     {generatedContent.content.map((c: any, i: number) => (
                       <li key={i} className="p-4 border rounded">
@@ -120,37 +128,84 @@ export default function AIToolsPage() {
                   </ul>
                 )}
 
-                {generatedContent.type === "quiz" && isArray(generatedContent.content) && (
-                  <ul className="space-y-4">
-                    {generatedContent.content.map((q: any, i: number) => (
-                      <li key={i} className="p-4 border rounded">
-                        <p className="font-semibold">
-                          Q{i + 1}: {q.question}
-                        </p>
-                        <ul className="list-disc ml-5">
-                          {q.options.map((o: string, idx: number) => (
-                            <li key={idx}>{o}</li>
+                {generatedContent.type === "quiz" && quizMeta && (
+                  <form
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+                      const resp = await fetchJson<{ feedback: QuizFeedback[] }>(
+                        "/attempts/",
+                        {
+                          method: "POST",
+                          body: JSON.stringify({
+                            quiz_id: quizMeta.quizId,
+                            student_answers: answers,
+                          }),
+                        }
+                      );
+                      setGeneratedContent({ type: "quizResult", content: resp.feedback });
+                    }}
+                  >
+                    {quizMeta.questions.map((q, i) => {
+                      const key = `Q${i + 1}`;
+                      return (
+                        <fieldset key={i} className="mb-4">
+                          <legend className="font-semibold">{q.question}</legend>
+                          {q.options.map((opt) => (
+                            <label key={opt} className="block">
+                              <input
+                                type="radio"
+                                name={key}
+                                value={opt}
+                                checked={answers[key] === opt}
+                                onChange={() =>
+                                  setAnswers((a) => ({ ...a, [key]: opt }))
+                                }
+                              />
+                              {opt}
+                            </label>
                           ))}
-                        </ul>
-                        <p className="mt-2 text-green-600">
-                          Answer: {q.answer}
-                        </p>
-                      </li>
-                    ))}
-                  </ul>
+                        </fieldset>
+                      );
+                    })}
+                    <Button type="submit">Submit Answers</Button>
+                  </form>
                 )}
 
-                {["summarize", "transcribe"].includes(generatedContent.type) && (
-                  <ScrollArea className="h-96 p-4 border rounded">
-                    <pre className="whitespace-pre-wrap">
-                      {typeof generatedContent.content === "string"
-                        ? generatedContent.content
-                        : Array.isArray(generatedContent.content)
-                        ? generatedContent.content.join("\n\n")
-                        : String(generatedContent.content)}
-                    </pre>
-                  </ScrollArea>
-                )}
+                {generatedContent.type === "quizResult" &&
+                  Array.isArray(generatedContent.content) && (
+                    <div className="space-y-2">
+                      {generatedContent.content.map((f: QuizFeedback, i: number) => (
+                        <div
+                          key={i}
+                          className={f.is_correct ? "text-green-600" : "text-red-600"}
+                        >
+                          <p className="font-semibold">{f.question}</p>
+                          <p>
+                            Your answer: {f.student_answer} —{' '}
+                            {f.is_correct
+                              ? '✅'
+                              : `❌ (Correct: ${f.correct_answer})`}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                {['summarize', 'transcribe'].includes(
+                  generatedContent.type
+                ) && (
+                    <ScrollArea className="h-96 p-4 border rounded">
+                      <pre className="whitespace-pre-wrap">
+                        {typeof generatedContent.content === 'string'
+                          ? generatedContent.content
+                          : Array.isArray(
+                            generatedContent.content
+                          )
+                            ? generatedContent.content.join('\n\n')
+                            : String(generatedContent.content)}
+                      </pre>
+                    </ScrollArea>
+                  )}
               </CardContent>
             </Card>
           )}

@@ -18,6 +18,7 @@ import {
   BookMarked,
   FileText,
 } from "lucide-react";
+import React from "react";
 
 interface StudyProgressProps {
   subject: string;

@@ -1,4 +1,3 @@
-// components/AIToolsPanel.tsx (updated to pass correct props)
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,17 +10,33 @@ import TranscribeTab from "@/components/aiToolsTabs/TranscribeTab";
 import FlashcardsTab from "@/components/aiToolsTabs/FlashcardsTab";
 import QuizTab from "@/components/aiToolsTabs/QuizTab";
 
-interface AIToolsPanelProps {
-  selectedResource?: { id: number; name: string; type: string };
-  onGenerateContent: (payload: { type: string; content: any }) => void;
+interface Resource {
+  id: number;
+  name: string;
+  type: string;
 }
 
-export default function AIToolsPanel({ selectedResource, onGenerateContent }: AIToolsPanelProps) {
+interface QuizMeta {
+  quizId: number;
+  questions: Array<{ question: string; options: string[]; answer: string }>;
+}
+
+interface AIToolsPanelProps {
+  selectedResource?: Resource;
+  onGenerateContent: (payload: { type: string; content: any }) => void;
+  onQuizMeta: (meta: QuizMeta) => void;
+}
+
+export default function AIToolsPanel({
+  selectedResource,
+  onGenerateContent,
+  onQuizMeta
+}: AIToolsPanelProps) {
   const [activeTab, setActiveTab] = useState<string>("summarize");
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
 
-  // For non-flashcard tools: local mock handler (or integrate separately)
+  // Mock handler for non-AI tools
   const handleProcess = (type: string) => {
     setIsProcessing(true);
     setProgress(0);
@@ -30,7 +45,6 @@ export default function AIToolsPanel({ selectedResource, onGenerateContent }: AI
         if (prev >= 100) {
           clearInterval(interval);
           setIsProcessing(false);
-          // You can replace mock content with real API data if needed
           onGenerateContent({ type, content: [] });
           return 100;
         }
@@ -45,14 +59,14 @@ export default function AIToolsPanel({ selectedResource, onGenerateContent }: AI
         return (
           <SummarizeTab
             selectedResource={selectedResource}
-            isProcessing={isProcessing && activeTab === "summarize"}
+            isProcessing={isProcessing}
             onProcess={() => handleProcess("summarize")}
           />
         );
       case "transcribe":
         return (
           <TranscribeTab
-            isProcessing={isProcessing && activeTab === "transcribe"}
+            isProcessing={isProcessing}
             onProcess={() => handleProcess("transcribe")}
           />
         );
@@ -67,8 +81,8 @@ export default function AIToolsPanel({ selectedResource, onGenerateContent }: AI
         return (
           <QuizTab
             selectedResource={selectedResource}
-            isProcessing={isProcessing && activeTab === "quiz"}
-            onProcess={() => handleProcess("quiz")}
+            onGenerateContent={onGenerateContent}
+            onQuizMeta={onQuizMeta}
           />
         );
       default:
@@ -94,7 +108,9 @@ export default function AIToolsPanel({ selectedResource, onGenerateContent }: AI
             <TabsTrigger value="quiz">Quiz</TabsTrigger>
           </TabsList>
         </Tabs>
-        <ScrollArea className="h-[500px] p-4">{renderTab()}</ScrollArea>
+        <ScrollArea className="h-[500px] p-4">
+          {renderTab()}
+        </ScrollArea>
       </CardContent>
       <CardFooter className="border-t p-4">
         {isProcessing ? (
@@ -109,10 +125,8 @@ export default function AIToolsPanel({ selectedResource, onGenerateContent }: AI
           </div>
         ) : (
           <div className="w-full flex items-center justify-between text-sm text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <AlertCircle className="h-3 w-3" />
-              <span>Select a resource to get started</span>
-            </div>
+            <AlertCircle className="h-3 w-3" />
+            <span>Select a resource to get started</span>
           </div>
         )}
       </CardFooter>
