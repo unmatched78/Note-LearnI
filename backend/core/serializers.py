@@ -55,7 +55,7 @@ class AuthResponseSerializer(serializers.Serializer):
 class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Document
-        fields = ["id", "user", "title", "file", "description", "created_at"]
+        fields = ["id", "user", "notes", "title", "file", "description", "created_at"]
         read_only_fields = ["id", "user", "description", "created_at"]
 
 class QuizSerializer(serializers.ModelSerializer):

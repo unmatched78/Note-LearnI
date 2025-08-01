@@ -7,7 +7,7 @@ import QuizPage from "./pages/QuizPage";
 import HomePage from "./pages/Dashboard";
 import AuthPage from "./components/AuthPage";
 import AIToolsPanel from "./pages/AIToolsPage"
-import ResourceViewer from "./pages/ResourceViewer"
+import ResourceViewer from "./pages/ResourcePage"
 
 export default function App() {
   const { isLoaded, isSignedIn } = useUser();

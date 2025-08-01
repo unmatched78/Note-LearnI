@@ -44,6 +44,7 @@ class Document(Timer):
     """
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
+    notes=models.TextField(blank=True, null=True)
     file = models.FileField(upload_to='documents/')
     description = models.TextField(blank=True, null=True)
     code = models.CharField(max_length=50,null=True, unique=True, help_text="Unique code for the document")
