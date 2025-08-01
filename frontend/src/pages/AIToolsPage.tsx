@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { FileText, Upload } from "lucide-react";
 import FlashcardsList from "@/components/FlashcardsList";
-
+import MarkdownDisplay from "@/components/MarkdownDisplay";
 interface Resource {
   id: number;
   name: string;
@@ -129,14 +129,18 @@ export default function AIToolsPage() {
                   </ul>
                 )} */}
 
-                <FlashcardsList
-                  cards={generatedContent.content}
-                  tiltAngle={20}
-                  tiltScale={1.05}
-                  flipDuration={0.8}
-                  springStiffness={400}
-                  springDamping={25}
-                />
+                {/* only show flashcards when type === 'flashcards' */}
+                {generatedContent.type === "flashcards" && (
+                  <FlashcardsList
+                    cards={generatedContent.content as Array<{ front: string; back: string }>}
+                    tiltAngle={20}
+                    tiltScale={1.05}
+                    flipDuration={0.8}
+                    springStiffness={400}
+                    springDamping={25}
+                  />
+                )}
+
 
 
 
@@ -232,9 +236,22 @@ export default function AIToolsPage() {
                       ))}
                     </div>
                   )}
+                {generatedContent.type === "summarize" && (
+                  <MarkdownDisplay
+                    title="Summary"
+                    content={generatedContent.content as string}
+                  />
+                )}
+
+                {generatedContent.type === "transcribe" && (
+                  <MarkdownDisplay
+                    title="Transcript"
+                    content={generatedContent.content as string}
+                  />
+                )}
 
 
-                {['summarize', 'transcribe'].includes(
+                {/* {['summarize', 'transcribe'].includes(
                   generatedContent.type
                 ) && (
                     <ScrollArea className="h-96 p-4 border rounded">
@@ -248,7 +265,7 @@ export default function AIToolsPage() {
                             : String(generatedContent.content)}
                       </pre>
                     </ScrollArea>
-                  )}
+                  )} */}
               </CardContent>
             </Card>
           )}

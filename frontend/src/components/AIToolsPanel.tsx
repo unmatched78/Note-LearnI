@@ -59,8 +59,9 @@ export default function AIToolsPanel({
         return (
           <SummarizeTab
             selectedResource={selectedResource}
-            isProcessing={isProcessing}
-            onProcess={() => handleProcess("summarize")}
+            onGenerateContent={onGenerateContent}
+          // isProcessing={isProcessing}
+          // onProcess={() => handleProcess("summarize")}
           />
         );
       case "transcribe":
@@ -113,7 +114,8 @@ export default function AIToolsPanel({
         </ScrollArea>
       </CardContent>
       <CardFooter className="border-t p-4">
-        {isProcessing ? (
+        {/* {isProcessing ? ( */}
+        {activeTab !== "summarize" && isProcessing ? (
           <div className="w-full space-y-2">
             <div className="flex items-center justify-between text-sm">
               <span className="flex items-center gap-2">
