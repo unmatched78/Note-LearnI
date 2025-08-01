@@ -23,7 +23,7 @@ def generate_summary(text_chunks, length="medium", include_key_points=True, focu
         resp = client.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant that writes concise summaries."},
+                {"role": "system", "content": "You are a helpful assistant that writes concise summaries.All your responses should be formatted using Markdown syntax, including headings, lists, bold text, and code blocks where appropriate and more."},
                 {"role": "user", "content": prompt},
             ],
         )

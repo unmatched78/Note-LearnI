@@ -1,4 +1,4 @@
-import React, { useState, useRef, ChangeEvent } from "react";
+import { useState, useRef, ChangeEvent } from "react";
 import { useApi } from "@/api/api";
 import AIToolsPanel from "@/components/AIToolsPanel";
 import {
@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { FileText, Upload } from "lucide-react";
+import FlashcardsList from "@/components/FlashcardsList";
 
 interface Resource {
   id: number;
@@ -117,7 +118,7 @@ export default function AIToolsPage() {
               </CardHeader>
               <Separator />
               <CardContent>
-                {generatedContent.type === "flashcards" && Array.isArray(generatedContent.content) && (
+                {/* {generatedContent.type === "flashcards" && Array.isArray(generatedContent.content) && (
                   <ul className="space-y-4">
                     {generatedContent.content.map((c: any, i: number) => (
                       <li key={i} className="p-4 border rounded">
@@ -126,7 +127,18 @@ export default function AIToolsPage() {
                       </li>
                     ))}
                   </ul>
-                )}
+                )} */}
+
+                <FlashcardsList
+                  cards={generatedContent.content}
+                  tiltAngle={20}
+                  tiltScale={1.05}
+                  flipDuration={0.8}
+                  springStiffness={400}
+                  springDamping={25}
+                />
+
+
 
                 {generatedContent.type === "quiz" && quizMeta && (
                   <form
