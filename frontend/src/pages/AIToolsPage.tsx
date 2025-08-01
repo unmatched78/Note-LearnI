@@ -7,7 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -16,6 +15,7 @@ import { FileText, Upload } from "lucide-react";
 import FlashcardsList from "@/components/FlashcardsList";
 import MarkdownDisplay from "@/components/MarkdownDisplay";
 import TranscriptDisplay from "@/components/TranscriptDisplay";
+import SidebarContainer from "@/components/SidebarContainer";
 interface Resource {
   id: number;
   name: string;
@@ -109,6 +109,7 @@ export default function AIToolsPage() {
         </aside>
 
         <main className="flex-1 p-8 overflow-auto">
+          <SidebarContainer />
           {!generatedContent ? (
             <Card>
               <CardHeader>
