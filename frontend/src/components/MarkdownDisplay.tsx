@@ -101,6 +101,7 @@ export default function SummaryDisplay({ title = "Summary", content }: SummaryDi
         </CardHeader>
 
         <CardContent className="p-0">
+          {/* for the height down you can further change accordingly also if you want full content to be loaded at once simply use h-fit */}
           <ScrollArea className="h-[500px] p-4">
             <div className="prose prose-indigo max-w-none">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
