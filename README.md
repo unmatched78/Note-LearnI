@@ -1,4 +1,6 @@
 # AI Learning Platform
+We welcome scholarly contributions. To contribute:
+The better is to start from [Todos](https://github.com/unmatched78/Note-LearnI/blob/main/Docs/TODOs.md)
 ![Alt text](https://github.com/unmatched78/note-learnI/blob/main/Docs/Screenshot%202025-07-26%20182438.png) <br></br>
 ![Alt text](https://github.com/unmatched78/Note-LearnI/blob/main/Docs/image.png) <br></br>
 
