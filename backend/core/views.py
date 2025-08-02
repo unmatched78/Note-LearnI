@@ -218,6 +218,30 @@ class ModuleViewSet(viewsets.ModelViewSet):
 
         module.quiz.add(document)
         return Response({"detail": "Document added to module"}, status=200)
+    @action(detail=False, methods=["get"], url_path="progress")
+    def progress(self, request):
+        user = request.user
+        modules = Module.objects.filter(created_by=user)
+        results = []
+
+        for module in modules:
+            quizzes = module.quiz.all()
+            # all quiz attempts by this user for quizzes in this module
+            attempts = QuizAttempt.objects.filter(quiz__in=quizzes, student=user)
+
+            if attempts.exists():
+                total_pct = sum((a.score / a.total_questions) * 100 for a in attempts)
+                avg_pct = total_pct / attempts.count()
+            else:
+                avg_pct = 0
+
+            results.append({
+                'moduleId': module.id,
+                'title': module.title,
+                'score': round(avg_pct, 2),
+            })
+
+        return Response(results)
     
 """
    feature based classes
@@ -394,3 +418,4 @@ class StudyEventViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+

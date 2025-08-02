@@ -159,5 +159,5 @@ from .models import StudyEvent
 class StudyEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudyEvent
-        fields = ["id", "user", "title", "date", "time"]
+        fields = ["id", "user", "title", "datetime"]
         read_only_fields = ["id", "user"]

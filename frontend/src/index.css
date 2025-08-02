@@ -118,11 +118,11 @@
   @apply my-0;
 }
 
-@layer utilities {
+/* @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
-}
+} */
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -132,14 +132,13 @@
   }
 }
 
-body {
+/* body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-start-rgb));
-  overflow: hidden;
 }
 
 * {
   backface-visibility: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
+} */

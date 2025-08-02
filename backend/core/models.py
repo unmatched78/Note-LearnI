@@ -162,9 +162,8 @@ class FlashcardSet(Timer):
 class StudyEvent(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
-    date = models.DateField()
-    time = models.TimeField()
+    datetime = models.DateTimeField(default=timezone.now)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.title} @ {self.date} {self.time}"
+        return f"{self.title} @ {self.datetime}"

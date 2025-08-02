@@ -106,7 +106,7 @@ export default function AIToolsPanel({
       </CardHeader>
       <Separator />
       <CardContent className="p-0">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex gap-2">
           <TabsList className="grid grid-cols-4 w-full">
             <TabsTrigger value="summarize">Summarize</TabsTrigger>
             <TabsTrigger value="transcribe">Transcribe</TabsTrigger>
