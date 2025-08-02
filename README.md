@@ -1,14 +1,15 @@
 # AI Learning Platform
-We welcome scholarly contributions. To contribute:
-The better is to start from [Todos](https://github.com/unmatched78/Note-LearnI/blob/main/Docs/TODOs.md)
+$\color{Red}\Huge{\textsf{We welcome scholarly contributions. To contribute: The better is to start from }}$ [Todos](https://github.com/unmatched78/Note-LearnI/blob/main/Docs/TODOs.md)
+<br></br>
+
+
 ![Alt text](https://github.com/unmatched78/Note-LearnI/blob/main/Docs/Screenshot%202025-08-02%20215131.png) <br></br>
 ![Alt text](https://github.com/unmatched78/Note-LearnI/blob/main/Docs/Screenshot%202025-08-02%20215004.png) <br></br>
 ![Alt text](https://github.com/unmatched78/Note-LearnI/blob/main/Docs/Screenshot%202025-08-02%20214903.png) <br></br>
 
 
 Welcome to the **AI Learning Platform**, a comprehensive, full-stack digital ecosystem engineered to support and optimize student learning through structured resource organization, intelligent recommendations, and interactive progress monitoring.<br></br>
-$\color{Red}\Huge{\textsf{N.B: The project is in it's middle phase so not all is build yet!}}$
-<br></br>
+
 
 > Empowering learners to realize their academic aspirations through intelligent, data-driven pathways.
 
