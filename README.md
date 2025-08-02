@@ -1,15 +1,16 @@
-# AI Learning Platform
-We welcome scholarly contributions. To contribute:
-The better is to start from [Todos](https://github.com/unmatched78/Note-LearnI/blob/main/Docs/TODOs.md)
-![Alt text](https://github.com/unmatched78/note-learnI/blob/main/Docs/Screenshot%202025-07-26%20182438.png) <br></br>
-![Alt text](https://github.com/unmatched78/Note-LearnI/blob/main/Docs/image.png) <br></br>
-
-
-Welcome to the **AI Learning Platform**, a comprehensive, full-stack digital ecosystem engineered to support and optimize student learning through structured resource organization, intelligent recommendations, and interactive progress monitoring.<br></br>
-$\color{Red}\Huge{\textsf{N.B: The project is in it's middle phase so not all is build yet!}}$
+$\color{Red}\Huge{\textsf{We welcome scholarly contributions. To contribute: The better is to start from }}$ [Todos](https://github.com/unmatched78/Note-LearnI/blob/main/Docs/TODOs.md)
 <br></br>
 
+# AI Learning Platform
+
 > Empowering learners to realize their academic aspirations through intelligent, data-driven pathways.
+
+![Dashboard Screenshot](https://github.com/unmatched78/Note-LearnI/blob/main/Docs/image.png)
+![Dashboard Screenshot](https://github.com/unmatched78/Note-LearnI/blob/main/Docs/Screenshot%202025-08-02%20215131.png)
+![Modules Screenshot](https://github.com/unmatched78/Note-LearnI/blob/main/Docs/Screenshot%202025-08-02%20215004.png)
+![AI Tools Screenshot](https://github.com/unmatched78/Note-LearnI/blob/main/Docs/Screenshot%202025-08-02%20214903.png)
+
+We welcome scholarly contributions! request a feature and contribute, The better is to start from our [Todos](https://github.com/unmatched78/Note-LearnI/blob/main/Docs/TODOs.md).
 
 ---
 
@@ -17,245 +18,178 @@ $\color{Red}\Huge{\textsf{N.B: The project is in it's middle phase so not all is
 
 1. [Project Overview](#project-overview)
 2. [Core Features](#core-features)
-3. [Technology Stack](#technology-stack)
-4. [System Architecture](#system-architecture)
-5. [Initial Setup](#initial-setup)
-
-   * [Prerequisites](#prerequisites)
-   * [Installation Guide](#installation-guide)
-   * [Development Server](#development-server)
-6. [Configuration Parameters](#configuration-parameters)
-7. [Database Infrastructure](#database-infrastructure)
-8. [Security and Authentication](#security-and-authentication)
-9. [User Interface Modules](#user-interface-modules)
-10. [API Endpoint Reference](#api-endpoint-reference)
-11. [Machine Learning Integration (MCP Tool)](#machine-learning-integration-mcp-tool)
-12. [Development Roadmap](#development-roadmap)
-13. [Contribution Guidelines](#contribution-guidelines)
-14. [Licensing Information](#licensing-information)
+3. [Tech Stack & Architecture](#tech-stack--architecture)
+4. [UI & Theming](#ui--theming)
+5. [Getting Started](#getting-started)
+6. [Configuration](#configuration)
+7. [API Reference](#api-reference)
+8. [Roadmap & Contributing](#roadmap--contributing)
+9. [License](#license)
 
 ---
 
 ## Project Overview
 
-The AI Learning Platform is an advanced educational technology framework designed to enhance the academic experience by facilitating the personalized organization of learning content. By leveraging artificial intelligence, modular frontend design, and secure backend services, the platform provides a multidimensional interface for content curation, adaptive study planning, collaboration, and real-time analytics.
+The **AI Learning Platform** is a full-stack educational ecosystem that:
 
-Key objectives include:
+* Organizes and curates study materials (documents, videos, quizzes).
+* Uses AI to generate summaries, quizzes, flashcards, and transcripts.
+* Offers a dynamic study dashboard with progress analytics and calendar scheduling.
+* Provides social features: peer sharing, notifications, and role-based collaboration.
 
-* Centralizing diverse learning materials (e.g.,learning quiz, lecture notes, videos, readings)
-* Generating intelligent study pathways tailored to user behavior
-* Supporting peer-to-peer content exchange and review
-* Enabling comprehensive performance tracking through data visualization
-* Maintaining robust account security and role-based access
+---
 
 ## Core Features
 
-* **Content Curation**: Users can upload, classify, and search for educational materials within an intuitive interface.
-* **Adaptive Recommendations**: AI algorithms propose contextually relevant resources and study tasks.
-* **Dynamic Study Planner**: A flexible scheduler enabling goal-driven academic planning.
-* **Progress Analytics**: Insightful metrics on learning efficiency, engagement time, and task completion.
-* **Social Learning Tools**: Peer sharing, commentary, and collaborative annotations.
-* **User Notifications**: Time-sensitive reminders and system alerts.
-* **Access Control**: Role-dependent permissions for Students, Instructors, and Administrators.
+* **Modular Content Library**: Create, tag, and search “Modules” of learning resources.
+* **AI Tools Panel**: On-demand summarization, quiz generation, flashcards, and transcription.
+* **Study Dashboard**:
 
-## Technology Stack
+  * **Progress Analytics**: Top modules by score, resource counts.
+  * **Upcoming Events & Schedule**: Add/view study sessions on a calendar.
+  * **Recently Accessed**: Quick links to latest materials.
+* **Responsive & Accessible UI**: Built with Tailwind CSS and shadcn/ui components.
+* **Secure Authentication**: Clerk for user management, JWT for API access.
 
-### Front-end
+---
 
-* **ReactJS** – Component-based UI architecture
-* **Vercel** – Serverless deployment and hosting
-* **Tailwind CSS** – Utility-first design system
-* **Shadcn/UI** – Predefined accessible component suite
-* **Accentinity UI** – Advanced theme and color token management
-* **JWT** – Session management via secure JSON Web Tokens
-*  **Clerk auth** 
-
-### Back-end
-
-* **Django** – High-level Python web framework
-* **Django REST Framework** – RESTful API generation
-* **djangorestframework-simplejwt** – JWT-based authentication handler
-* **Neon DB** – Cloud-native PostgreSQL database service
-* **MCP Tool** – Modular pipeline controller for ML model integration
-
-## System Architecture
+## Tech Stack & Architecture
 
 ```mermaid
 flowchart LR
-    A[React Client] -- HTTP/HTTPS --> B[Django REST API + clerk validation SDK]
-    B --> C[Neon PostgreSQL]
-    B -- JWT Auth --> A
-    B --> D[MCP Tool SQE utils + views] --> E[AI/ML Models API]
-    A --> F[ShadcnUI, TailwindCSS]
+  A[React + Vite] --> B[Clerk Auth & JWT]
+  A --> C[shadcn/ui + TailwindCSS]
+  A -- API calls --> D[Django REST Framework]
+  D --> E[Neon PostgreSQL]
+  D --> F[MCP Tool ➔ AI/ML Services]
 ```
 
-### Architectural Highlights:
+* **Frontend**
 
-* **Front-end**: Deployed via Vercel, styled with Tailwind and Shadcn components
-* **Back-end**: API layer protected by token-based authentication
-* **Persistence Layer**: PostgreSQL database hosted on Neon for scalability
-* **AI Pipeline**: AI operations orchestrated through a dedicated MCP service
+  * React + Vite
+  * Tailwind CSS, shadcn/ui
+  * Clerk for auth, lucide-react icons
+* **Backend**
 
-## Initial Setup
+  * Django + DRF
+  * Clerk SDK for JWT auth
+  * Neon PostgreSQL
+  * Custom “MCP Tool” pipeline utility for AI tasks
+
+---
+
+## UI & Theming
+
+We’ve standardized on a **high-contrast, colored-border** design:
+
+* **Card Borders**: Indigo for modules, yellow for events, green for schedule, blue for materials, purple for AI tools.
+* **Hover Glow**: `hover:shadow-lg transition` on interactive cards.
+* **Buttons**: Solid brand colors matching section accents.
+* **Tabs & Controls**: Increased spacing (`gap-4`, `px-4`) for clarity.
+* **Responsive Layouts**: Grid → single column on small screens.
+
+All major components—**Dashboard**, **ModuleGrid**, **HomePage**, and **AIToolsPage**—now share this cohesive style.
+
+---
+
+## Getting Started
 
 ### Prerequisites
 
-* Node.js (v16 or later)
-* npm or yarn
-* Python 3.9+
-* pip or Poetry (dependency managers)
-* PostgreSQL (Neon DB credentials)
+* Node.js v16+ & npm/yarn
+* Python 3.9+ & pip/Poetry
+* Neon PostgreSQL credentials
 
-### Installation Guide
-
-1. **Repository Setup**
+### Installation
 
 ```bash
-git clone https://github.com/unmatched/Note-Learn.git
-cd note-learn
-```
+# Clone
+git clone https://github.com/unmatched78/Note-LearnI.git
+cd Note-LearnI
 
-2. **Back-end Configuration**
-
-```bash
+# Backend
 cd backend
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-```
+python manage.py migrate
 
-3. **Front-end Configuration**
-
-```bash
+# Frontend
 cd ../frontend
-npm install  # or yarn
+npm install
 ```
 
-### Development Server
-
-* Launch Django Server:
+### Running Locally
 
 ```bash
+# Backend (port 8000)
 cd backend
 source venv/bin/activate
-python manage.py migrate
 python manage.py runserver
-```
 
-* Launch React Client:
-
-```bash
+# Frontend (port 3000)
 cd frontend
 npm run dev
 ```
 
-Access the UI at `http://localhost:3000` and the API at `http://localhost:8000/api`
+Open your browser at `http://localhost:3000`.
 
-## Configuration Parameters
+---
 
-Create a `.env` file in each project root (`/backend` and `/frontend`):
+## Configuration
 
-### Backend (`/backend/.env`)
+Create `.env` in each folder:
+
+**backend/.env**
 
 ```
 DEBUG=True
-SECRET_KEY=your_django_secret_key
-DATABASE_URL=postgres://<user>:<pass>@<host>:<port>/<db_name>
-SIMPLE_JWT_SECRET_KEY=your_jwt_secret_key
+SECRET_KEY=your_secret
+DATABASE_URL=postgres://user:pass@host:port/db
+OPENAI_API_KEY=your_api_key
+JWT_SECRET=your_jwt_secret
 ```
 
-### Frontend (`/frontend/.env`)
+**frontend/.env**
 
 ```
-NEXT_PUBLIC_API_URL=http://localhost:8000/api
-JWT_STORAGE_KEY=authToken
+VITE_API_URL=http://localhost:8000/api
+VITE_JWT_KEY=authToken
 ```
 
-## Database Infrastructure
+---
 
-* Managed through Django ORM
-* Deployed via Neon DB for automated scaling and connection pooling
-* Migration commands:
+## API Reference
 
-```bash
-python manage.py makemigrations
-python manage.py migrate
-```
+| Endpoint             | Method   | Description                       |
+| -------------------- | -------- | --------------------------------- |
+| `/modules/`          | GET/POST | List or create study modules      |
+| `/documents/`        | GET/POST | List or upload learning materials |
+| `/events/`           | GET/POST | Manage study scheduler events     |
+| `/summaries/`        | POST     | Generate AI summaries             |
+| `/quizzes/generate/` | POST     | Generate AI-driven quizzes        |
+| `/flashcards/`       | POST     | Generate AI flashcards            |
+| `/transcripts/`      | POST     | Generate transcripts from media   |
 
-## Security and Authentication
+---
 
-* **JWT Implementation** via `djangorestframework + clerk SDK`:
+## Roadmap & Contributing
 
-  * Dual-token structure (access/refresh)
-  * Supports token rotation and blacklist
-* **CORS** policies tailored to frontend domain
-* **HTTPS** enforced in production
+* **In Progress**:
 
-## User Interface Modules
+  * CI/CD with GitHub Actions
+  * PWA support
+  * Real-time chat for peer discussion
 
-* **Dashboard**: High-level summaries including visual analytics
-* **Resource Library**: Filterable content explorer
-* **Study Planner**: Interactive drag-and-drop task manager
-* **Collaboration**: Real-time messaging and peer feedback (WebSockets)
+* **How to Contribute**
 
-## API Endpoint Reference
+  1. Fork & clone
+  2. `git checkout -b feature/your-feature`
+  3. Commit, push, and open a PR
+  4. Reference [Todos](Docs/TODOs.md) for guidance
 
-| Endpoint         | Method   | Purpose                                     |
-| ---------------- | -------- | ------------------------------------------- |
-| `/users/`        | GET/POST | List or create new user profiles            |
-| `/materials/`    | GET/POST | Upload or retrieve learning resources       |
-| `/plans/`        | GET/POST | Manage user-specific study schedules        |
-| `/analytics/`    | GET      | Query learning metrics and performance data |
+---
 
-## Machine Learning Integration (MCP Tool)
+## License
 
-* **Function**: Serve as an intermediary layer between resource ingestion and ML pipeline execution.
-* **Operational Flow**:
-
-  1. User uploads educational content.
-  2. Django backend triggers a registered MCP job.
-  3. The MCP service tokenizes, classifies, and stores metadata.
-  4. Downstream services consume metadata for recommendation or insights.
-
-## Development Roadmap
-
-* [ ] GitHub Actions CI/CD pipeline
-* [ ] Backend deployment to managed environment (e.g., AWS ECS, Vercel Functions)
-* [ ] User avatar and bio customization
-* [ ] Notification infrastructure (email + in-app toasts)
-* [ ] Advanced collaborative filtering models
-* [ ] Internationalization (i18n) support
-* [ ] Comprehensive testing and coverage reports
-* [ ] Progressive Web App (PWA) conversion
-
-## Contribution Guidelines
-
-We welcome scholarly contributions. To contribute:
-The better is to start from [Todos](https://github.com/unmatched78/Note-LearnI/blob/main/Docs/TODOs.md)
-
-Otherwise;
-
-1. Fork this repository.
-2. Create a topic-specific branch:
-
-```bash
-git checkout -b feature/your-feature-name
-```
-
-3. Commit changes and write descriptive messages:
-
-```bash
-git commit -m "feat: implemented [your feature]"
-```
-
-4. Push the branch:
-
-```bash
-git push origin feature/your-feature-name
-```
-
-5. Open a Pull Request and link to relevant issues.
-
-## Licensing Information
-
-This project is made available under the terms of the [GNU General Public License v3.0](LICENSE).
+This project is licensed under the **GNU GPL v3.0**. See [LICENSE](LICENSE) for details.
