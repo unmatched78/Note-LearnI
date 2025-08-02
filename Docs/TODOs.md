@@ -14,6 +14,7 @@
 - [ ] Implement golas setting and followup
 - [ ] Implement setting Timer for study and reminders
 - [ ] Implement notifications and preference with settings
+- [ ] Improve documentation
 - [ ] more and more
 - [ ] Another task
 
