@@ -7,7 +7,7 @@
 - [ ] make logic in backend for token usage per user counting and display it in the frontend dashboard
 - [x] align the dashboard endpoint and allow real-time metrics setting of calendar and planning of studies
 - [ ] add sharing and collaborative features for students and group studying and peer learning [definitive]
-- [ ] implement audio recording & transcription [Partially done]
+- [ ] implement audio recording & transcription [Partially done]!
 - [ ] Add & create a public endpoint for public clean notes sharing for students to help others learn and find notes easily
 - [ ] Allow retrieval and redoing previously done quizzes, prioritizing what was wrong in the quiz [Urgent]
 - [ ] Allow shortcuts for indexing, searching between activity and notes, and more like navigations
