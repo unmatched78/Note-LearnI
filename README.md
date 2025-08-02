@@ -145,6 +145,7 @@ Create `.env` in each folder:
 DEBUG=True
 SECRET_KEY=your_secret
 DATABASE_URL=postgres://user:pass@host:port/db
+OPENAI_API_KEY=your_api_key
 JWT_SECRET=your_jwt_secret
 ```
 
