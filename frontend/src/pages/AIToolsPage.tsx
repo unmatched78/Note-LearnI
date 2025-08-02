@@ -290,7 +290,7 @@
 //     </div>
 //   );
 // }
-import React, { useState, useRef, ChangeEvent } from "react";
+import { useState, useRef, ChangeEvent } from "react";
 import { useApi } from "@/api/api";
 import AIToolsPanel from "@/components/AIToolsPanel";
 import {
