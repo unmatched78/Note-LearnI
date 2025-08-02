@@ -154,3 +154,10 @@ class FlashcardSetSerializer(serializers.ModelSerializer):
         fields = ["id", "document", "generated_by", "num_cards",
                   "difficulty", "focus_topics", "cards", "created_at"]
         read_only_fields = ["id", "generated_by", "cards", "created_at"]
+from .models import StudyEvent
+
+class StudyEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudyEvent
+        fields = ["id", "user", "title", "date", "time"]
+        read_only_fields = ["id", "user"]

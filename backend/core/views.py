@@ -384,3 +384,13 @@ class FlashcardViewSet(viewsets.ModelViewSet):
             cards=cards,
         )
         return Response(FlashcardSetSerializer(fcset).data, status=201)
+class StudyEventViewSet(viewsets.ModelViewSet):
+    serializer_class = StudyEventSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return StudyEvent.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

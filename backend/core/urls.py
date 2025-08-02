@@ -7,6 +7,7 @@ from .views import (
     DocumentViewSet,
     QuizViewSet,
     QuizAttemptViewSet,
+    StudyEventViewSet,
     UserViewSet,
     ModuleViewSet,
     SummaryViewSet,
@@ -23,7 +24,7 @@ router.register(r'modules',   ModuleViewSet,   basename='module')
 router.register(r'summaries', SummaryViewSet, basename='summary')
 router.register(r'transcripts', TranscriptViewSet, basename='transcript')
 router.register(r'flashcards', FlashcardViewSet, basename='flashcard')
-
+router.register(r"events", StudyEventViewSet, basename="event")
 
 urlpatterns = [
     # 1) Public /auth endpoints FIRST
