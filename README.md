@@ -5,6 +5,7 @@ $\color{Red}\Huge{\textsf{We welcome scholarly contributions. To contribute: The
 
 > Empowering learners to realize their academic aspirations through intelligent, data-driven pathways.
 
+![Dashboard Screenshot](https://github.com/unmatched78/Note-LearnI/blob/main/Docs/image.png)
 ![Dashboard Screenshot](https://github.com/unmatched78/Note-LearnI/blob/main/Docs/Screenshot%202025-08-02%20215131.png)
 ![Modules Screenshot](https://github.com/unmatched78/Note-LearnI/blob/main/Docs/Screenshot%202025-08-02%20215004.png)
 ![AI Tools Screenshot](https://github.com/unmatched78/Note-LearnI/blob/main/Docs/Screenshot%202025-08-02%20214903.png)
