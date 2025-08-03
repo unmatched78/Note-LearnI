@@ -1,5 +1,5 @@
-from rest_framework import viewsets, status, generics, permissions
-from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from rest_framework import viewsets, status, permissions
+from rest_framework.parsers import MultiPartParser,JSONParser
 from rest_framework.response import Response
 from core.auth.authentication import ClerkAuthentication as JWTAuthentication
 from rest_framework.decorators import action
@@ -10,13 +10,13 @@ from .utils.file_processing import extract_text_from_file, split_text_into_chunk
 from .utils.quiz_utils import generate_questions_from_text, evaluate_answers_logic
 from rest_framework.permissions import IsAuthenticated
 from .api.responses import error_response
-from django.utils.decorators import method_decorator
 from django.db import IntegrityError
-from django.core.exceptions import ValidationError
-from rest_framework.exceptions import PermissionDenied
 from django.contrib.auth import get_user_model
 import logging, os, json
 from .auth import authemail, authentication, webhooks
+from .utils.summarize import generate_summary
+from .utils.transcribe import transcribe_media
+from .utils.flashcard import generate_flashcards
 logger = logging.getLogger(__name__)
 User = get_user_model()
 
@@ -121,7 +121,36 @@ class QuizViewSet(viewsets.ReadOnlyModelViewSet):
             quiz_title=f"Quiz from {doc.title}",
             questions=questions_wrapper
         )
-        return Response({"quiz_id": quiz.id, "questions": questions})
+        
+        return Response({"quiz_id": quiz.id, "questions": questions_wrapper.get("questions", [])})
+    
+class ResourceSearch(viewsets.ModelViewSet):
+    """Search for resources, including questions in quizzes, documents, modules, etc."""
+    serializer_class = ResourceSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    def get_queryset(self):
+        qs = super().get_queryset()
+        term = self.request.query_params.get("search", "").strip()
+        if term:
+            # search quiz_title OR any question text inside questions JSONB
+            qs = qs.filter(
+                Q(quiz_title__icontains=term) |
+                Q(questions__contains=[{"question": term}])
+            )
+        return qs
+    def get_queryset(self):
+        qs = super().get_queryset()
+        term = self.request.query_params.get("search", "").strip()
+        if term:
+            # this uses the GIN index on questions
+            qs = qs.filter(
+                questions__path=["questions", "*", "question"],
+                questions__path__icontains=term
+            )
+        return qs
+   
+
 
 class QuizAttemptViewSet(viewsets.ModelViewSet):
     queryset = QuizAttempt.objects.all().order_by('-created_at')
@@ -247,9 +276,7 @@ class ModuleViewSet(viewsets.ModelViewSet):
    feature based classes
 """
 
-from .utils.summarize import generate_summary
-from .utils.transcribe import transcribe_media
-from .utils.flashcard import generate_flashcards
+
 class SummaryViewSet(viewsets.ModelViewSet):
     queryset = Summary.objects.all().order_by('-created_at')
     serializer_class = SummarySerializer
@@ -264,7 +291,7 @@ class SummaryViewSet(viewsets.ModelViewSet):
     def generate(self, request):
         """
         POST payload:
-          {
+          { 
             "document": <doc_id>,
             "length": "medium",
             "include_key_points": true,
@@ -290,6 +317,7 @@ class SummaryViewSet(viewsets.ModelViewSet):
             include_key_points=include,
             focus_areas=focus,
             content=summary_text,
+            #title=request.data.get("title", "")
         )
         return Response(SummarySerializer(summary).data, status=201)
 

@@ -134,7 +134,7 @@ class ModuleSerializer(serializers.ModelSerializer):
 class SummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = Summary
-        fields = ["id", "document", "generated_by", "length", "include_key_points",
+        fields = ["id", "document","title", "generated_by", "length", "include_key_points",
                   "focus_areas", "content", "created_at"]
         read_only_fields = ["id", "generated_by", "content", "created_at"]
 
@@ -151,10 +151,9 @@ class TranscriptSerializer(serializers.ModelSerializer):
 class FlashcardSetSerializer(serializers.ModelSerializer):
     class Meta:
         model = FlashcardSet
-        fields = ["id", "document", "generated_by", "num_cards",
+        fields = ["id", "document","title", "generated_by", "num_cards",
                   "difficulty", "focus_topics", "cards", "created_at"]
         read_only_fields = ["id", "generated_by", "cards", "created_at"]
-from .models import StudyEvent
 
 class StudyEventSerializer(serializers.ModelSerializer):
     class Meta:

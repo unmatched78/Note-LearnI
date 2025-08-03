@@ -7,6 +7,7 @@ import json
 from django.utils import timezone
 from shortuuidfield import ShortUUIDField
 from django.conf import settings
+from django.contrib.postgres.indexes import GinIndex
 User= settings.AUTH_USER_MODEL
 
 class CustomUser(AbstractUser):
@@ -53,19 +54,47 @@ class Document(Timer):
         return f"{self.title} by {self.user}"
 
     
+# class Quiz(Timer):
+#     """
+#     Model representing an AI-generated quiz for a given document.
+#     """
+#     quiz_title=models.CharField(max_length=200, help_text="Title of the quiz attempt", null=True, blank=True)
+#     document = models.ForeignKey(Document, on_delete=models.CASCADE, null=True, blank=True)
+#     generated_by = models.ForeignKey(User, on_delete=models.CASCADE, help_text="User who triggered the quiz generation")
+#     # Structure example: [{'question': 'What is ...?', 'choices': ['A', 'B', 'C'], 'correct': 'B'}, ...]
+#     questions = models.JSONField(help_text="Quiz questions and choices in JSON format")
+
+#     def __str__(self):
+#         return f"{self.quiz_title} for {self.document.title}"
+
+
+
 class Quiz(Timer):
     """
     Model representing an AI-generated quiz for a given document.
     """
-    quiz_title=models.CharField(max_length=200, help_text="Title of the quiz attempt", null=True, blank=True)
+    quiz_title = models.CharField(
+        max_length=200,
+        help_text="Title of the quiz",
+        null=True,
+        blank=True,
+        db_index=True,                   # simple btree index on quiz_title
+    )
     document = models.ForeignKey(Document, on_delete=models.CASCADE, null=True, blank=True)
-    generated_by = models.ForeignKey(User, on_delete=models.CASCADE, help_text="User who triggered the quiz generation")
-    # Structure example: [{'question': 'What is ...?', 'choices': ['A', 'B', 'C'], 'correct': 'B'}, ...]
-    questions = models.JSONField(help_text="Quiz questions and choices in JSON format")
+    generated_by = models.ForeignKey(User, on_delete=models.CASCADE,help_text="User who triggered the quiz generation")
+    questions = models.JSONField(help_text="Quiz questions in JSON format")
 
+    class Meta:
+        indexes = [
+            GinIndex(
+                name="quiz_questions_gin",
+                fields=["questions"],
+                opclasses=["jsonb_path_ops"]
+            ),
+        ]
+        ordering = ['-created_at']
     def __str__(self):
         return f"{self.quiz_title} for {self.document.title}"
-
 
 
 

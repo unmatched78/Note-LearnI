@@ -17,7 +17,7 @@ def generate_questions_from_text(text_chunks, prompt, num_questions):
     combined_prompt = (
         f"{prompt}\nContent:\n{combined_text}\n\n"
         f"Generate exactly {num_questions} multiple-choice questions with correct answers in JSON format:\n"
-        '[{"title": "string", "question": "string", "options": ["A", "B", "C", "D""....], "correct_choice": "string"}]'
+        '[{"question": "string", "options": ["A", "B", "C", "D""....], "correct_choice": "string"}]'
     )
     try:
         client = OpenAI(api_key=openai_api_key)
@@ -46,9 +46,8 @@ def generate_questions_from_text(text_chunks, prompt, num_questions):
                             "minItems": 2  # Ensures at least two options
                         },
                         "correct_choice": {"type": "string"},
-                        "title": {"type": "string"},
                     },
-                    "required": ["question", "options", "correct_choice", "title"],
+                    "required": ["question", "options", "correct_choice"],
                     "additionalProperties": False
                 }
             }

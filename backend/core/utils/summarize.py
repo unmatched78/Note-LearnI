@@ -1,5 +1,6 @@
 # core/utils/summarize.py
 import logging, os
+import json
 from openai import OpenAI
 
 logger = logging.getLogger(__name__)
@@ -65,18 +66,45 @@ print("Hello, world!")
 * Summary bullet 2
 
 ```
-All your responses should follow the pattern above, adapting headers, lists, tables, quotes, and code blocks to the content.  
+All your responses should follow the pattern above, adapting headers, lists, tables, quotes, and code blocks to the content.  since we are using json schema to validate the response; please ensure that the response is in the format specified in the json schema.
     """.strip()
 
     try:
-        resp = client.chat.completions.create(
+        response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": prompt},
             ],
+            response_format = {
+    "type": "json_schema",
+    "json_schema": {
+       "name": "summary_schema",
+       "schema": {
+                "type": "object",
+        "properties": {
+            "summary": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "title": {"type": "string"},
+                        "summary": {"type": "string"},
+                    },
+                    "required": ["title", "summary"],
+                    "additionalProperties": False
+                }
+            }
+        }
+       }
+    }
+}
         )
-        return resp.choices[0].message.content.strip()
+        #return resp.choices[0].message.content.strip()
+        content = response.choices[0].message.content
+        print(f"=*30\n{content}\n=*30")
+        summary = json.loads(content)
+        return summary
     except Exception as e:
-        logger.error("Summarization failed: %s", e)
-        return ""
+            logger.error("Error generating summary: %s", e)
+    return []
