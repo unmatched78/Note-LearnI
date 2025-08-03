@@ -147,18 +147,40 @@ class Summary(models.Model):
     """
     Stores a generated summary for a Document.
     """
-    title=models.CharField(max_length=200, null=True, blank=True, help_text="Title of the summary")
+    title=models.CharField(max_length=200, null=True, blank=True, db_index=True,help_text="Title of the summary")
     document = models.ForeignKey('Document', on_delete=models.CASCADE, related_name='summaries')
     generated_by = models.ForeignKey(User, on_delete=models.CASCADE)
     length = models.CharField(max_length=20)  # e.g. "short"/"medium"/"long"
     include_key_points = models.BooleanField(default=True)
     focus_areas = models.TextField(blank=True)
+    snippet = models.CharField(
+        max_length=100,
+        editable=False,
+        help_text="First 100 chars of the summary for quick search",
+        db_index=True,
+        null=True,
+        blank=True
+    )
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"Summary({self.length}) of {self.document.title}"
+    class Meta:
+         indexes = [
+            # index on the text content itself (trigram would be ideal, but this works):
+             GinIndex(
+                 name="summary_content_gin",
+                 fields=["content"],
+                 opclasses=["gin_trgm_ops"]
+             ),
+         ]
 
+    def __str__(self):
+         return f"Summary({self.length}) of {self.document.title}"
+
+    def save(self, *args, **kwargs):
+        # auto-populate the snippet field
+        self.snippet = (self.content or "")[:100]
+        super().save(*args, **kwargs)
 class Transcript(Timer):
     """
     Stores a transcript (and optional summary) of uploaded media.
@@ -171,8 +193,16 @@ class Transcript(Timer):
     speaker_identification = models.BooleanField(default=False)
     transcript = models.TextField()
     summary = models.TextField(blank=True, null=True)
-
-
+    title=models.CharField(max_length=200,db_index=True, help_text="Title of the transcript set", null=True, blank=True)
+    
+    class Meta:
+        indexes = [
+            GinIndex(
+                name="transcript_body_gin",
+                fields=["transcript"],
+                opclasses=["gin_trgm_ops"]
+            ),
+        ]
     def __str__(self):
         return f"Transcript of {self.generated_by.username}--{self.transcript[:80]}"
 
@@ -181,13 +211,22 @@ class FlashcardSet(Timer):
     """
     A set of AI‑generated flashcards for a Document.
     """
-    title=models.CharField(max_length=200, help_text="Title of the flashcard set", null=True, blank=True)
+    title=models.CharField(max_length=200,db_index=True, help_text="Title of the flashcard set", null=True, blank=True)
     document = models.ForeignKey('Document', on_delete=models.CASCADE, related_name='flashcard_sets')
     generated_by = models.ForeignKey(User, on_delete=models.CASCADE)
     num_cards = models.PositiveIntegerField()
     difficulty = models.CharField(max_length=20)
     focus_topics = models.TextField(blank=True)
     cards = models.JSONField()  # list of {"front": "...", "back": "..."}
+
+    class Meta:
+        indexes = [
+            GinIndex(
+                name="flashcards_cards_gin",
+                fields=["cards"],
+                opclasses=["jsonb_path_ops"]
+            ),
+        ]
 
     def __str__(self):
         return f"{self.num_cards} flashcards for {self.document.title}"

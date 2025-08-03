@@ -12,7 +12,8 @@ from .views import (
     ModuleViewSet,
     SummaryViewSet,
     TranscriptViewSet,
-    FlashcardViewSet
+    FlashcardViewSet,
+    ResourceSearch
 )
 
 router = DefaultRouter()
@@ -25,6 +26,8 @@ router.register(r'summaries', SummaryViewSet, basename='summary')
 router.register(r'transcripts', TranscriptViewSet, basename='transcript')
 router.register(r'flashcards', FlashcardViewSet, basename='flashcard')
 router.register(r"events", StudyEventViewSet, basename="event")
+# Our unified search endpoint
+router.register(r'resources', ResourceSearch,  basename='resource-search')
 
 urlpatterns = [
     # 1) Public /auth endpoints FIRST

@@ -13,6 +13,7 @@ from .api.responses import error_response
 from django.db import IntegrityError
 from django.contrib.auth import get_user_model
 import logging, os, json
+from django.db.models import Q
 from .auth import authemail, authentication, webhooks
 from .utils.summarize import generate_summary
 from .utils.transcribe import transcribe_media
@@ -123,33 +124,226 @@ class QuizViewSet(viewsets.ReadOnlyModelViewSet):
         )
         
         return Response({"quiz_id": quiz.id, "questions": questions_wrapper.get("questions", [])})
-    
-class ResourceSearch(viewsets.ModelViewSet):
-    """Search for resources, including questions in quizzes, documents, modules, etc."""
-    serializer_class = ResourceSerializer
+
+from rest_framework import mixins, viewsets
+from rest_framework.response import Response
+from .pagination import StandardResultsSetPagination
+class ResourceSearch(mixins.ListModelMixin,viewsets.GenericViewSet):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
-    def get_queryset(self):
-        qs = super().get_queryset()
-        term = self.request.query_params.get("search", "").strip()
+    permission_classes     = [IsAuthenticated]
+    pagination_class       = StandardResultsSetPagination
+
+    def list(self, request):
+        term = request.query_params.get("search", "").strip()
+
+        quizzes     = Quiz.objects.all()
+        flashsets   = FlashcardSet.objects.all()
+        summaries   = Summary.objects.all()
+        transcripts = Transcript.objects.all()
+        docs        = Document.objects.all()
+
         if term:
-            # search quiz_title OR any question text inside questions JSONB
-            qs = qs.filter(
+            quizzes     = quizzes.filter(
                 Q(quiz_title__icontains=term) |
-                Q(questions__contains=[{"question": term}])
+                Q(questions__icontains=term)
             )
-        return qs
-    def get_queryset(self):
-        qs = super().get_queryset()
-        term = self.request.query_params.get("search", "").strip()
-        if term:
-            # this uses the GIN index on questions
-            qs = qs.filter(
-                questions__path=["questions", "*", "question"],
-                questions__path__icontains=term
+            flashsets   = flashsets.filter(
+                Q(title__icontains=term) |
+                Q(cards__icontains=term)
             )
-        return qs
-   
+            summaries   = summaries.filter(
+                Q(title__icontains=term) |
+                Q(snippet__icontains=term) |
+                Q(content__icontains=term)
+            )
+            transcripts = transcripts.filter(
+                Q(title__icontains=term) |
+                Q(transcript__icontains=term) |
+                Q(summary__icontains=term)
+            )
+            docs        = docs.filter(
+                Q(title__icontains=term) |
+                Q(description__icontains=term)
+            )
+
+        results = []
+        
+
+        # Helpers to pull first element safely
+        def first_question_text(q_field):
+            if isinstance(q_field, dict):
+                lst = q_field.get("questions", [])
+            else:
+                lst = q_field or []
+            return (lst[0].get("question") if lst and isinstance(lst[0], dict) else "")[:100]
+
+        def first_flashcard_front(cards_field):
+            if isinstance(cards_field, dict):
+                lst = cards_field.get("flashcard", []) or cards_field.get("cards", [])
+            else:
+                lst = cards_field or []
+            return (lst[0].get("front") if lst and isinstance(lst[0], dict) else "")[:100]
+
+        # Quizzes
+        for q in quizzes:
+            snippet = first_question_text(q.questions)
+            results.append({
+                "id": q.id,
+                "resource_type": "quiz",
+                "title": q.quiz_title or "",
+                "snippet": snippet,
+                "created_at": q.created_at,
+            })
+
+        # Flashcards
+        for f in flashsets:
+            snippet = first_flashcard_front(f.cards)
+            results.append({
+                "id": f.id,
+                "resource_type": "flashcard",
+                "title": f.title or "",
+                "snippet": snippet,
+                "created_at": f.created_at,
+            })
+
+        # Summaries
+        for s in summaries:
+            results.append({
+                "id": s.id,
+                "resource_type": "summary",
+                "title": s.title or "",
+                "snippet": s.snippet,
+                "created_at": s.created_at,
+            })
+
+        # Transcripts
+        for t in transcripts:
+            results.append({
+                "id": t.id,
+                "resource_type": "transcript",
+                "title": t.title or "",
+                "snippet": (t.transcript or "")[:100],
+                "created_at": t.created_at,
+            })
+
+        # Documents
+        for d in docs:
+            results.append({
+                "id": d.id,
+                "resource_type": "document",
+                "title": d.title,
+                "snippet": (d.description or "")[:100],
+                "created_at": d.created_at,
+            })
+
+        # Sort by creation time descending
+        results.sort(key=lambda x: x["created_at"], reverse=True)
+        # paginate the Python list:
+        page = self.paginate_queryset(results)
+        if page is not None:
+            serializer = ResourceSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = ResourceSerializer(results, many=True)
+        return Response(serializer.data)
+
+
+"""
+   To be used on postgresql in production for JsonB
+"""
+# class ResourceSearch(viewsets.ViewSet):
+#     authentication_classes = [JWTAuthentication]
+#     permission_classes     = [IsAuthenticated]
+
+#     def list(self, request):
+#         term = request.query_params.get("search", "").strip()
+
+#         # Base querysets
+#         quizzes     = Quiz.objects.all()
+#         flashsets   = FlashcardSet.objects.all()
+#         summaries   = Summary.objects.all()
+#         transcripts = Transcript.objects.all()
+#         docs        = Document.objects.all()
+
+#         if term:
+#             quizzes     = quizzes.filter(
+#                                 Q(quiz_title__icontains=term) |
+#                                 Q(questions__contains=[{"question": term}])
+#                             )
+#             flashsets   = flashsets.filter(
+#                                 Q(title__icontains=term) |
+#                                 Q(cards__contains=[{"front": term}])
+#                             )
+#             summaries   = summaries.filter(
+#                                 Q(title__icontains=term) |
+#                                 Q(snippet__icontains=term) |
+#                                 Q(content__icontains=term)
+#                             )
+#             transcripts = transcripts.filter(
+#                                 Q(title__icontains=term) |
+#                                 Q(transcript__icontains=term) |
+#                                 Q(summary__icontains=term)
+#                             )
+#             docs        = docs.filter(
+#                                 Q(title__icontains=term) |
+#                                 Q(description__icontains=term)
+#                             )
+
+#         # Build a unified list
+#         results = []
+
+#         for q in quizzes:
+#             results.append({
+#                 "id":            q.id,
+#                 "resource_type": "quiz",
+#                 "title":         q.quiz_title or "",
+#                 "snippet":       (q.questions[0]["question"] if q.questions else "")[:100],
+#                 "created_at":    q.created_at,
+#             })
+#         for f in flashsets:
+#             results.append({
+#                 "id":            f.id,
+#                 "resource_type": "flashcard",
+#                 "title":         f.title or "",
+#                 "snippet":       (f.cards[0]["front"] if f.cards else "")[:100],
+#                 "created_at":    f.created_at,
+#             })
+#         for s in summaries:
+#             results.append({
+#                 "id":            s.id,
+#                 "resource_type": "summary",
+#                 "title":         s.title or "",
+#                 "snippet":       s.snippet,
+#                 "created_at":    s.created_at,
+#             })
+#         for t in transcripts:
+#             results.append({
+#                 "id":            t.id,
+#                 "resource_type": "transcript",
+#                 "title":         t.title or "",
+#                 "snippet":       t.transcript[:100],
+#                 "created_at":    t.created_at,
+#             })
+#         for d in docs:
+#             results.append({
+#                 "id":            d.id,
+#                 "resource_type": "document",
+#                 "title":         d.title,
+#                 "snippet":       d.description[:100],
+#                 "created_at":    d.created_at,
+#             })
+
+#         # Optionally sort by created_at descending
+#         results.sort(key=lambda x: x["created_at"], reverse=True)
+
+#         page = self.paginate_queryset(results)
+#         if page is not None:
+#             serializer = ResourceSerializer(page, many=True)
+#             return self.get_paginated_response(serializer.data)
+
+#         serializer = ResourceSerializer(results, many=True)
+#         return Response(serializer.data)
+
+
 
 
 class QuizAttemptViewSet(viewsets.ModelViewSet):
@@ -309,6 +503,7 @@ class SummaryViewSet(viewsets.ModelViewSet):
         # assume doc.description holds the text chunks or full text
         chunks = doc.description.splitlines()
         summary_text = generate_summary(chunks, length, include, focus)
+        title="summary for "+doc.title
 
         summary = Summary.objects.create(
             document=doc,
@@ -317,7 +512,7 @@ class SummaryViewSet(viewsets.ModelViewSet):
             include_key_points=include,
             focus_areas=focus,
             content=summary_text,
-            #title=request.data.get("title", "")
+            title=title
         )
         return Response(SummarySerializer(summary).data, status=201)
 
@@ -347,6 +542,7 @@ class TranscriptViewSet(viewsets.ModelViewSet):
         lang = request.data.get("language", "english")
         speaker = request.data.get("speaker_identification", False)
         gen_sum = request.data.get("generate_summary", False)
+        title= "transcript for "+audio.name 
 
         # if you have a URL for the file, pass that; here we'll use doc.file.url
         result = transcribe_media(audio, lang, speaker, gen_sum)
@@ -357,6 +553,7 @@ class TranscriptViewSet(viewsets.ModelViewSet):
             speaker_identification=speaker,
             transcript=result["transcript"],
             summary=result.get("summary", None),
+            title=title
         )
         return Response(TranscriptSerializer(transcript).data, status=201)
     @action(detail=False, methods=["post"])
@@ -375,6 +572,7 @@ class TranscriptViewSet(viewsets.ModelViewSet):
         url = request.data.get("youtube_url")
         if not url:
             return Response({"detail": "YouTube URL is required."}, status=400)
+        title = "transcript for "+url
         
     
         language = request.data.get("language", "en")
@@ -392,6 +590,7 @@ class TranscriptViewSet(viewsets.ModelViewSet):
             speaker_identification=False,
             transcript=result["transcript"],
             summary=result.get("summary", None),
+            title=title
         )
     
         return Response(TranscriptSerializer(transcript).data, status=201)
@@ -426,6 +625,7 @@ class FlashcardViewSet(viewsets.ModelViewSet):
 
         chunks = doc.description.splitlines()
         cards = generate_flashcards(chunks, n, diff, focus)
+        title=doc.title
 
         fcset = FlashcardSet.objects.create(
             document=doc,
@@ -434,6 +634,7 @@ class FlashcardViewSet(viewsets.ModelViewSet):
             difficulty=diff,
             focus_topics=focus,
             cards=cards,
+            title=title,
         )
         return Response(FlashcardSetSerializer(fcset).data, status=201)
 class StudyEventViewSet(viewsets.ModelViewSet):

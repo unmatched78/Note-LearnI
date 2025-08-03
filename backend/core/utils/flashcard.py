@@ -19,7 +19,7 @@ def generate_flashcards(text_chunks, num_cards=10, difficulty="medium", focus_to
         + (f" focusing on {focus_topics}." if focus_topics else ".")
         + "\n\nContent:\n" + "\n".join(text_chunks)
         + "\n\nFormat exactly as JSON:\n"
-        + '[{"title":"appropraite title of the all flashcards","front":"Question text","back":"Answer text"}, …]'
+        + '[{"front":"Question text","back":"Answer text"}, …]'
     )
 
     try:
@@ -43,9 +43,8 @@ def generate_flashcards(text_chunks, num_cards=10, difficulty="medium", focus_to
                                     "properties": {
                                         "front": {"type": "string"},
                                         "back": {"type": "string"},
-                                        "title": {"type": "string"},
                                     },
-                                    "required": ["front", "back", "title"],
+                                    "required": ["front", "back"],
                                     "additionalProperties": False
                                 }
                             }

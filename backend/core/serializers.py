@@ -134,16 +134,17 @@ class ModuleSerializer(serializers.ModelSerializer):
 class SummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = Summary
-        fields = ["id", "document","title", "generated_by", "length", "include_key_points",
+        fields = ["id", "document","title","snippet", "generated_by", "length", "include_key_points",
                   "focus_areas", "content", "created_at"]
-        read_only_fields = ["id", "generated_by", "content", "created_at"]
+        read_only_fields = ["id", "generated_by", "snippet", "content", "created_at"]
+
 
 class TranscriptSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transcript
         fields = [
             "id", "media_url", "generated_by", "language",
-            "speaker_identification", "transcript", "summary", "created_at"
+            "speaker_identification", "transcript", "summary", "title", "created_at"
         ]
         read_only_fields = ["id", "generated_by", "transcript", "summary", "created_at"]
 
@@ -160,3 +161,10 @@ class StudyEventSerializer(serializers.ModelSerializer):
         model = StudyEvent
         fields = ["id", "user", "title", "datetime"]
         read_only_fields = ["id", "user"]
+
+class ResourceSerializer(serializers.Serializer):
+    id            = serializers.IntegerField()
+    resource_type = serializers.CharField()  # e.g. "quiz", "flashcard", "summary", "transcript", "document"
+    title         = serializers.CharField()
+    snippet       = serializers.CharField(allow_blank=True)
+    created_at    = serializers.DateTimeField()
