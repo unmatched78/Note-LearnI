@@ -57,9 +57,9 @@ class Quiz(Timer):
     """
     Model representing an AI-generated quiz for a given document.
     """
+    quiz_title=models.CharField(max_length=200, help_text="Title of the quiz attempt", null=True, blank=True)
     document = models.ForeignKey(Document, on_delete=models.CASCADE, null=True, blank=True)
     generated_by = models.ForeignKey(User, on_delete=models.CASCADE, help_text="User who triggered the quiz generation")
-    quiz_title = models.CharField(max_length=200)
     # Structure example: [{'question': 'What is ...?', 'choices': ['A', 'B', 'C'], 'correct': 'B'}, ...]
     questions = models.JSONField(help_text="Quiz questions and choices in JSON format")
 
@@ -73,6 +73,7 @@ class QuizAttempt(Timer):
     """
     Model to store a student's attempt at a quiz.
     """
+    
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     # User responses in JSON format; structure can be defined as needed.
@@ -117,6 +118,7 @@ class Summary(models.Model):
     """
     Stores a generated summary for a Document.
     """
+    title=models.CharField(max_length=200, null=True, blank=True, help_text="Title of the summary")
     document = models.ForeignKey('Document', on_delete=models.CASCADE, related_name='summaries')
     generated_by = models.ForeignKey(User, on_delete=models.CASCADE)
     length = models.CharField(max_length=20)  # e.g. "short"/"medium"/"long"
@@ -150,6 +152,7 @@ class FlashcardSet(Timer):
     """
     A set of AI‑generated flashcards for a Document.
     """
+    title=models.CharField(max_length=200, help_text="Title of the flashcard set", null=True, blank=True)
     document = models.ForeignKey('Document', on_delete=models.CASCADE, related_name='flashcard_sets')
     generated_by = models.ForeignKey(User, on_delete=models.CASCADE)
     num_cards = models.PositiveIntegerField()

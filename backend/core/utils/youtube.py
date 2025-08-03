@@ -1,48 +1,3 @@
-# from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound
-# from youtube_transcript_api.formatters import TextFormatter
-# import logging
-
-# logger = logging.getLogger(__name__)
-
-
-# def extract_video_id(youtube_url: str) -> str:
-#     """
-#     Extracts the video ID from a standard YouTube URL.
-#     """
-#     import re
-#     match = re.search(r"(?:v=|youtu\.be/|embed/)([A-Za-z0-9_-]{11})", youtube_url)
-#     if not match:
-#         raise ValueError("Invalid YouTube URL format.")
-#     return match.group(1)
-
-
-# def transcribe_youtube_video(url: str, language="en", generate_summary=False):
-#     try:
-#         video_id = extract_video_id(url)
-#         transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
-
-#         transcript_obj = transcript_list.find_transcript([language])
-#         raw_transcript = transcript_obj.fetch()
-#         text = TextFormatter().format_transcript(raw_transcript)
-
-#         if generate_summary:
-#             from .summarize import generate_summary
-#             return {
-#                 "transcript": text,
-#                 "summary": generate_summary([text], length="short")
-#             }
-
-#         return {"transcript": text}
-
-#     except TranscriptsDisabled:
-#         logger.error("Transcripts are disabled for this video.")
-#         return {"transcript": "Transcripts are disabled for this video."}
-#     except NoTranscriptFound:
-#         logger.error("No transcript found for this video.")
-#         return {"transcript": "No transcript found for this video."}
-#     except Exception as e:
-#         logger.error(f"Failed to fetch YouTube transcript: {e}")
-#         return {"transcript": ""}
 from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound
 from youtube_transcript_api.formatters import TextFormatter
 import logging
@@ -64,10 +19,6 @@ def transcribe_youtube_video(url: str, language="en", generate_summary=False):
     try:
         video_id = extract_video_id(url)
         # Fetch the transcript directly
-        #raw_transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=[language])
-        #logger.info(f"Transcript fetched for video ID: {video_id}")
-        # Format the transcript into plain text
-        #text = TextFormatter().format_transcript(raw_transcript)
         transcript_list = YouTubeTranscriptApi().list(video_id)
         transcript = transcript_list.find_transcript([language])
         data = transcript.fetch()
