@@ -230,7 +230,7 @@ const HomePage: React.FC = () => {
           <form onSubmit={handleSearch} className="relative w-96">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
-              placeholder="Search modules, resources, notes..."
+              placeholder="CTRL+F Search"
               className="pl-10"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
