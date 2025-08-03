@@ -10,7 +10,7 @@
 - [ ] implement audio recording & transcription [Partially done]!
 - [ ] Add & create a public endpoint for public clean notes sharing for students to help others learn and find notes easily
 - [ ] Allow retrieval and redoing previously done quizzes, prioritizing what was wrong in the quiz [Urgent]
-- [ ] Allow shortcuts for indexing, searching between activity and notes, and more like navigations
+- [x] Allow shortcuts for indexing, searching between activity and notes, and more like navigations
 - [ ] Implement goal setting and follow-up
 - [ ] Implement setting a Timer for study and reminders
 - [ ] Implement notifications and preferences with settings
