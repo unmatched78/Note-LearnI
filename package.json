@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "prepare": "cd .. && husky frontend/.husky"
+    "prepare": "husky"
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.37.0",
@@ -86,7 +86,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
-    "husky": "^8.0.3",
+    "husky": "^9.1.7",
     "tailwindcss-animate": "^1.0.7",
     "tw-animate-css": "^1.3.4",
     "typescript": "~5.8.3",
