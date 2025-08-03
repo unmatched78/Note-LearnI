@@ -70,6 +70,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { DialogDescription } from "@/components/ui/dialog";
+import { ModeToggle } from "@/components/mode-toggle";
 
 interface Module { id: number; title: string; code: string; created_at: string; }
 interface Document { id: number; title: string; file: string; created_at: string; }
@@ -517,16 +518,7 @@ const HomePage: React.FC = () => {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="theme">Theme</Label>
-              <Select defaultValue="system">
-                <SelectTrigger>
-                  <SelectValue placeholder="Theme" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="light">Light</SelectItem>
-                  <SelectItem value="dark">Dark</SelectItem>
-                  <SelectItem value="system">System</SelectItem>
-                </SelectContent>
-              </Select>
+                  <ModeToggle />
             </div>
           </div>
           <DialogFooter>
