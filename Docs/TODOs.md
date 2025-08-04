@@ -14,6 +14,6 @@
 - [ ] Implement goal setting and follow-up
 - [ ] Implement setting a Timer for study and reminders
 - [ ] Implement notifications and preferences with settings
-- [ ] Improve documentation
+- [x] Improve documentation[Partially done]
 - [ ] Add other tasks + feature request
 
