@@ -17,6 +17,9 @@ export default defineConfig({
   //     hook: "buildStart",
   //   })],
   ],
+    optimizeDeps: {
+    include: ["react-pdf", "pdfjs-dist"]
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
