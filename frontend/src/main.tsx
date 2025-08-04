@@ -8,8 +8,8 @@ import { Toaster } from "@/components/ui/sonner"
 import ResourceSearchModal  from "@/components/ResourceSearchModal"
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 // src/main.tsx
-import { pdfjs } from 'react-pdf';
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+// import { pdfjs } from 'react-pdf';
+// pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 if (!PUBLISHABLE_KEY) {
   throw new Error('Missing Publishable Key')

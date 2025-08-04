@@ -416,16 +416,31 @@
 
 // export default ResourceViewer;
 // pages/resource.tsx
-import React from "react";
-import ResourceViewer from "@/components/ResourceViewer";
+// import React from "react";
+// import ResourceViewer from "@/components/ResourceViewer";
 
-const ResourcePage: React.FC = () => (
-  <div className="min-h-screen p-8 bg-gray-50">
-    <h1 className="text-2xl font-semibold mb-4">Resource Viewer</h1>
-    
-      <ResourceViewer />
-    
-  </div>
-);
+// const ResourcePage: React.FC = () => (
+//   <div className="min-h-screen p-8 bg-gray-50">
+//     <h1 className="text-2xl font-semibold mb-4">Resource Viewer</h1>
 
+//       <ResourceViewer />
+
+//   </div>
+// );
+
+// export default ResourcePage;
+// Core viewer
+
+
+
+
+import PDFViewer from '@/components/PdfViewer';
+
+function ResourcePage() {
+  return (
+    <div >
+      <PDFViewer />
+    </div>
+  );
+}
 export default ResourcePage;
