@@ -4,6 +4,7 @@
 - [ ] Make the resource endpoint better and allow fetching the real documents from the backend to be opened in real time, ranging from .pdf, .txt, .pptx, .docx
 - [x] Improve the landing Page UI [Partially done]
 - [ ] Correct and enforce linting and husky rules for auto correction
+- [ ] Correct typesafe issues 
 - [x] align the dashboard endpoint and allow real-time metrics fetching from the backend
 - [ ] make logic in backend for token usage per user counting and display it in the frontend dashboard
 - [x] align the dashboard endpoint and allow real-time metrics setting of calendar and planning of studies
