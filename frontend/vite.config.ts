@@ -25,4 +25,13 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  // server: {
+  //   proxy: {
+  //     '/pdf.worker.min.js': {
+  //       target: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.3.31/',
+  //       changeOrigin: true,
+  //       rewrite: path => path.replace(/^\/pdf\.worker\.min\.js/, 'pdf.worker.min.js'),
+  //     },
+  //   },
+  // },
 })

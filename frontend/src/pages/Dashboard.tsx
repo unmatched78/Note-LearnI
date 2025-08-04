@@ -417,9 +417,9 @@ const HomePage: React.FC = () => {
                       </CardContent>
                     </Card>
                   </div>
-                  <div>
+                  {/* <div>
                     <AIToolsPanel />
-                  </div>
+                  </div> */}
                 </div>
               </TabsContent>
 
