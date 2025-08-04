@@ -13,7 +13,7 @@ import base64
 import fitz  # PyMuPDF
 from PIL import Image
 import streamlit as st
-from streamlit_drawable-canvas import st_canvas
+from streamlit_drawable_canvas import st_canvas
 
 st.set_page_config(page_title="PDF Viewer & Annotator", layout="wide")
 st.title("📄 PDF Viewer & Annotator")
