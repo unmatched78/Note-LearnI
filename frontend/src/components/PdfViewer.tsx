@@ -81,49 +81,16 @@
 // };
 
 // export default PDFViewer;
-import React, { useState, useEffect, CSSProperties } from 'react';
-import {
-  FileText,
-  ChevronLeft,
-  ChevronRight,
-  ZoomIn,
-  ZoomOut,
-  RotateCw,
-  Download,
-  RefreshCcw,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import React, { useState } from 'react';
 
 interface PDFViewerProps {
   url?: string;
 }
 
 const PDFViewer: React.FC<PDFViewerProps> = ({ url = '/final_view.pdf' }) => {
-  const [pdfSrc, setPdfSrc] = useState(url);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  const [page, setPage] = useState(1);
-  const [zoom, setZoom] = useState(100); // percent
-  const [rotation, setRotation] = useState(0);
-
-  // Re-trigger loader when URL or page changes
-  useEffect(() => {
-    setIsLoading(true);
-  }, [pdfSrc, page, zoom, rotation]);
-
-  // Build fragment for native PDF viewer controls off
-  const fragment = `page=${page}&view=FitH`;
-  const iframeSrc = `${pdfSrc}#${fragment}`;
-
-  // CSS wrapper to apply zoom & rotation
-  const wrapperStyle: CSSProperties = {
-    transform: `scale(${zoom / 100}) rotate(${rotation}deg)`,
-    transformOrigin: 'top left',
-    width: `${100 / (zoom / 100)}%`,
-    height: `${100 / (zoom / 100)}%`,
-  };
+  const [pdfSrc, setPdfSrc] = useState<string>(url);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>('');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -131,7 +98,6 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url = '/final_view.pdf' }) => {
       const blobUrl = URL.createObjectURL(file);
       setPdfSrc(blobUrl);
       setError('');
-      setPage(1);
     } else {
       setError('Please select a valid PDF file.');
     }
@@ -146,67 +112,31 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url = '/final_view.pdf' }) => {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow flex items-center justify-between p-4 sticky top-0 z-10">
-        <div className="flex items-center gap-2">
-          <FileText className="h-6 w-6 text-blue-600" />
-          <h2 className="text-xl font-bold">PDF Viewer</h2>
-        </div>
-        <div className="flex items-center gap-2">
-          <label className="flex items-center gap-1 cursor-pointer px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-            <FileText className="h-4 w-4" />
-            <Input
-              type="file"
-              accept="application/pdf"
-              onChange={handleFileChange}
-              className="hidden"
-            />
-            Open
-          </label>
-          <Button variant="secondary" onClick={handleDownload} className="flex items-center gap-1">
-            <Download className="h-4 w-4" />
-            Download
-          </Button>
-          <Button variant="outline" onClick={() => window.location.reload()} className="p-2">
-            <RefreshCcw className="h-5 w-5" />
-          </Button>
-        </div>
-      </header>
-
-      {/* Controls */}
-      <div className="bg-white border-b p-3 flex items-center justify-center gap-4 sticky top-14 z-10">
-        <Button size="icon" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}>
-          <ChevronLeft className="h-5 w-5" />
-        </Button>
-        <div className="flex items-center gap-1">
-          <Input
-            type="number"
-            min={1}
-            value={page}
-            onChange={(e) => setPage(Math.max(1, parseInt(e.target.value) || 1))}
-            className="w-16 text-center"
+      {/* File input and download button */}
+      <div className="p-4 bg-white shadow flex items-center gap-4">
+        <label className="cursor-pointer px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
+          <input
+            type="file"
+            accept="application/pdf"
+            onChange={handleFileChange}
+            className="hidden"
           />
-          <span>/?</span>
-        </div>
-        <Button size="icon" onClick={() => setPage((p) => p + 1)}>
-          <ChevronRight className="h-5 w-5" />
-        </Button>
-
-        <Button size="icon" onClick={() => setZoom((z) => Math.max(50, z - 25))}>
-          <ZoomOut className="h-5 w-5" />
-        </Button>
-        <span className="w-12 text-center">{zoom}%</span>
-        <Button size="icon" onClick={() => setZoom((z) => Math.min(200, z + 25))}>
-          <ZoomIn className="h-5 w-5" />
-        </Button>
-
-        <Button size="icon" onClick={() => setRotation((r) => (r + 90) % 360)}>
-          <RotateCw className="h-5 w-5" />
-        </Button>
+          Open PDF
+        </label>
+        <button
+          onClick={handleDownload}
+          className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+        >
+          Download PDF
+        </button>
       </div>
 
       {/* Error banner */}
-      {error && <div className="p-4 bg-red-100 text-red-700">{error}</div>}
+      {error && (
+        <div className="p-4 bg-red-100 text-red-700">
+          {error}
+        </div>
+      )}
 
       {/* Loader */}
       {isLoading && !error && (
@@ -215,21 +145,19 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ url = '/final_view.pdf' }) => {
         </div>
       )}
 
-      {/* PDF iframe with zoom/rotate wrapper */}
+      {/* PDF iframe */}
       {!error && (
-        <div className="flex-1 overflow-auto bg-gray-200">
-          <div style={wrapperStyle} className="origin-top-left">
-            <iframe
-              src={iframeSrc}
-              onLoad={() => setIsLoading(false)}
-              onError={() => {
-                setIsLoading(false);
-                setError('Failed to load PDF.');
-              }}
-              className="w-full h-screen border-0"
-              title="PDF Viewer"
-            />
-          </div>
+        <div className="flex-1">
+          <iframe
+            src={pdfSrc}
+            onLoad={() => setIsLoading(false)}
+            onError={() => {
+              setIsLoading(false);
+              setError('Failed to load PDF.');
+            }}
+            className="w-full h-full border-0"
+            title="PDF Viewer"
+          />
         </div>
       )}
     </div>
