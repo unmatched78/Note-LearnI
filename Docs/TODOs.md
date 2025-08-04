@@ -1,4 +1,5 @@
 # Todos 
+- [ ] Create a feature rich pdf viewer & opener with annotations, text-highlighting, commenting and more using common react packages or the other way around
 - [x] Implement the ai-tools endpoint of the frontend, which has flashcard generation, quiz[look example in quiz endpoint], summarize generation, transcribe generation, 
 - [ ] Make the resource endpoint better and allow fetching the real documents from the backend to be opened in real time, ranging from .pdf, .txt, .pptx, .docx
 - [x] Improve the landing Page UI [Partially done]
