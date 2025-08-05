@@ -138,6 +138,7 @@ export default function NotesPage() {
                       { to: "/dashboard", icon: FileText, label: "Dashboard" },
                       { to: "/resources", icon: BookOpen, label: "Resources" },
                       { to: "/ai-tools", icon: Zap, label: "AI Tools" },
+                      { to: "/notes", icon: FileText, label: "Notes" },
                     ].map(({ to, icon: Icon, label }) => (
                       <Link
                         key={label}

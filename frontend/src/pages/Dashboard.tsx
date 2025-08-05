@@ -171,6 +171,13 @@ const HomePage: React.FC = () => {
           >
             <Zap size={18} /> AI Tools
           </Link>
+          <Link
+            to="/notes"
+            className="flex items-center gap-3 px-3 py-2 rounded hover:bg-muted transition-colors text-muted-foreground"
+          >
+            <FileText size={18} />
+            Notes
+          </Link>
         </nav>
         <div className="mt-auto pt-4 border-t">
           <DropdownMenu>
