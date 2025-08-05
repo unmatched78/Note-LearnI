@@ -1,8 +1,11 @@
 # Todos 
+- [ ] Create a feature rich pdf viewer & opener with annotations, text-highlighting, commenting and more using common react packages or the other way around [@Urgent]
 - [x] Implement the ai-tools endpoint of the frontend, which has flashcard generation, quiz[look example in quiz endpoint], summarize generation, transcribe generation, 
 - [ ] Make the resource endpoint better and allow fetching the real documents from the backend to be opened in real time, ranging from .pdf, .txt, .pptx, .docx
 - [x] Improve the landing Page UI [Partially done]
 - [ ] Correct and enforce linting and husky rules for auto correction
+- [ ] Correct typesafe issues
+- [ ] Implement cloudinary and django-storage-cloudinary for serving user uploaded media file in production; also make pre-hooks and co-direct chunking so that the doc chunks be saved in the backend to avoid frequent calling except on frontend for viewing docs for the client
 - [x] align the dashboard endpoint and allow real-time metrics fetching from the backend
 - [ ] make logic in backend for token usage per user counting and display it in the frontend dashboard
 - [x] align the dashboard endpoint and allow real-time metrics setting of calendar and planning of studies
