@@ -109,3 +109,10 @@ class ResourceSerializer(serializers.Serializer):
     title         = serializers.CharField()
     snippet       = serializers.CharField(allow_blank=True)
     created_at    = serializers.DateTimeField()
+
+class NoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notes
+        fields = ["id", "user", "title", "content", "created_at", "updated_at"]
+        read_only_fields = ["id", "user", "created_at", "updated_at"]
+    

@@ -665,3 +665,14 @@ class StudyEventViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+class NotesViewSet(viewsets.ModelViewSet):  
+    queryset = Notes.objects.all().order_by('-created_at')
+    serializer_class = NoteSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def get_queryset(self):
+        return Notes.objects.filter(user=self.request.user).order_by('-created_at')

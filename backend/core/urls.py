@@ -13,7 +13,8 @@ from .views import (
     SummaryViewSet,
     TranscriptViewSet,
     FlashcardViewSet,
-    ResourceSearch
+    ResourceSearch,
+    NotesViewSet
 )
 
 router = DefaultRouter()
@@ -26,6 +27,7 @@ router.register(r'summaries', SummaryViewSet, basename='summary')
 router.register(r'transcripts', TranscriptViewSet, basename='transcript')
 router.register(r'flashcards', FlashcardViewSet, basename='flashcard')
 router.register(r"events", StudyEventViewSet, basename="event")
+router.register(r"notes", NotesViewSet, basename="notes")
 # Our unified search endpoint
 router.register(r'resources', ResourceSearch,  basename='resource-search')
 

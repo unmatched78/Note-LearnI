@@ -223,3 +223,23 @@ class StudyEvent(models.Model):
 
     def __str__(self):
         return f"{self.title} @ {self.datetime}"
+    
+    class Meta:
+        ordering = ['-datetime']
+        verbose_name = "Study Event"
+        
+class Notes(Timer):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+
+    def __str__(self):
+        return f"{self.user} created {self.title} @ {self.created_at}"
+    def save(self, *args, **kwargs):
+        if not self.title:
+            self.title = "Untitled Note"
+        super().save(*args, **kwargs)
+        return self
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Notes"

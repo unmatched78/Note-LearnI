@@ -1,301 +1,228 @@
-// // src/pages/NotesPage.tsx
+// src/pages/NotesPage.tsx
+"use client";
+import React, { useEffect, useState, Suspense, lazy } from "react";
+import { useApi } from "@/api/api";
+import { useAuth } from "@clerk/clerk-react";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { ModeToggle } from "@/components/mode-toggle";
+import { toast } from "react-hot-toast";
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from "@/components/ui/resizable";
+import {
+  SidebarProvider,
+  SidebarTrigger,
+  SidebarInset,
+} from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+import { Plus as PlusIcon } from "lucide-react";
+// Lazy-load Markdown editor for React
+const MDEditor = lazy(() => import('@uiw/react-md-editor'));
 
-// import { useEffect, useState } from "react";
-// import api from "@/api/api"; // Axios instance with JWT interceptor
-// import { useAuth } from "../context/AuthContext";
-// import { Button } from "@/components/ui/button";
-// import { Textarea } from "@/components/ui/textarea";
-// import { ScrollArea } from "@/components/ui/scroll-area";
-// import { ModeToggle } from "@/components/mode-toggle";
-// import { toast } from "react-hot-toast";
+interface Note {
+  id: number;
+  title: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+}
 
-// import {
-//   ResizablePanelGroup,
-//   ResizablePanel,
-//   ResizableHandle,
-// } from "@/components/ui/resizable";
+// If API response is paginated, it may return { results: Note[] }
+type NotesResponse = Note[] | { results: Note[] };
 
-// import {
-//   SidebarProvider,
-//   SidebarTrigger,
-//   SidebarInset,
-// } from "@/components/ui/sidebar";
-// import { AppSidebar } from "@/components/app-sidebar";
-// import { Plus as PlusIcon } from "lucide-react";
+export default function NotesPage() {
+  const { fetchJson } = useApi();
 
-// interface Note {
-//   id: number;
-//   content: string;
-//   created_at: string;
-//   updated_at: string;
-// }
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const [isCreatingNew, setIsCreatingNew] = useState(true);
+  const [editorContent, setEditorContent] = useState("");
+  const [editorTitle, setEditorTitle] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoadingNotes, setIsLoadingNotes] = useState(true);
 
-// export default function NotesPage() {
-//   const { logout } = useAuth();
-//   const [notes, setNotes] = useState<Note[]>([]);
-//   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  // Fetch notes on mount
+  useEffect(() => {
+    (async () => {
+      setIsLoadingNotes(true);
+      try {
+        const raw = await fetchJson<NotesResponse>("/notes/");
+        const list = Array.isArray(raw) ? raw : raw.results;
+        setNotes(list);
+      } catch {
+        toast.error("Failed to load notes.");
+      } finally {
+        setIsLoadingNotes(false);
+      }
+    })();
+  }, []);
 
-//   // Always start with “create new” mode and an empty textarea
-//   const [isCreatingNew, setIsCreatingNew] = useState<boolean>(true);
-//   const [editorContent, setEditorContent] = useState<string>("");
+  function startNew() {
+    setIsCreatingNew(true);
+    setSelectedNote(null);
+    setEditorContent("");
+    setEditorTitle("");
+  }
 
-//   const [isSaving, setIsSaving] = useState<boolean>(false);
-//   const [isLoadingNotes, setIsLoadingNotes] = useState<boolean>(true);
+  async function submitNew() {
+    if (!editorContent.trim()) {
+      toast.error("Cannot create an empty note.");
+      return;
+    }
+    setIsSaving(true);
+    try {
+      const created = await fetchJson<Note>("/notes/", {
+        method: "POST",
+        body: JSON.stringify({ title: editorTitle || "Untitled", content: editorContent }),
+      });
+      setNotes(prev => [created, ...prev]);
+      toast.success("Note created.");
+      startNew();
+    } catch {
+      toast.error("Failed to create note.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
 
-//   // ─── Fetch all notes on mount ───────────────────────────────────────────────
-//   useEffect(() => {
-//     async function fetchNotes() {
-//       setIsLoadingNotes(true);
-//       try {
-//         const response = await api.get<Note[]>("/notes/");
-//         setNotes(response.data);
-//         // Do NOT auto-select any note; remain in “create new” mode with empty textarea
-//       } catch {
-//         toast.error("Failed to load notes.");
-//       } finally {
-//         setIsLoadingNotes(false);
-//       }
-//     }
-//     fetchNotes();
-//   }, []);
+  function selectNote(note: Note) {
+    setIsCreatingNew(false);
+    setSelectedNote(note);
+    setEditorContent(note.content);
+    setEditorTitle(note.title);
+  }
 
-//   // ─── Handler for clicking “+” (start new note) ─────────────────────────────
-//   function handleStartNew() {
-//     setIsCreatingNew(true);
-//     setSelectedNote(null);
-//     setEditorContent(""); // ensure textarea is empty
-//   }
+  async function saveNote() {
+    if (!selectedNote) return;
+    if (!editorContent.trim()) {
+      toast.error("Cannot save an empty note.");
+      return;
+    }
+    setIsSaving(true);
+    try {
+      const updated = await fetchJson<Note>(`/notes/${selectedNote.id}/`, {
+        method: "PUT",
+        body: JSON.stringify({ title: editorTitle, content: editorContent }),
+      });
+      setNotes(prev => prev.map(n => (n.id === updated.id ? updated : n)));
+      toast.success("Saved.");
+      setSelectedNote(updated);
+    } catch {
+      toast.error("Failed to save note.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
 
-//   // ─── Submit new note ────────────────────────────────────────────────────────
-//   async function handleSubmitNew() {
-//     if (editorContent.trim() === "") {
-//       toast.error("Cannot create an empty note.");
-//       return;
-//     }
-//     setIsSaving(true);
-//     try {
-//       const response = await api.post<Note>("/notes/", { content: editorContent });
-//       const created = response.data;
-//       setNotes((prev) => [created, ...prev]);
-//       toast.success("Note created.");
-//       // After creating, clear textarea and stay in “create new” mode
-//       setEditorContent("");
-//       setIsCreatingNew(true);
-//       setSelectedNote(null);
-//     } catch {
-//       toast.error("Failed to create note.");
-//     } finally {
-//       setIsSaving(false);
-//     }
-//   }
+  async function deleteNote() {
+    if (!selectedNote) return;
+    try {
+      await fetchJson(`/notes/${selectedNote.id}/`, { method: "DELETE" });
+      setNotes(prev => prev.filter(n => n.id !== selectedNote.id));
+      toast.success("Deleted.");
+      startNew();
+    } catch {
+      toast.error("Failed to delete note.");
+    }
+  }
 
-//   // ─── Select note from sidebar ───────────────────────────────────────────────
-//   function handleSelectNote(note: Note) {
-//     setIsCreatingNew(false);
-//     setSelectedNote(note);
-//     setEditorContent(note.content);
-//   }
-
-//   // ─── Save existing note ─────────────────────────────────────────────────────
-//   async function handleSaveNote() {
-//     if (!selectedNote) return;
-//     if (editorContent.trim() === "") {
-//       toast.error("Cannot save an empty note.");
-//       return;
-//     }
-//     setIsSaving(true);
-//     try {
-//       const response = await api.put<Note>(`/notes/${selectedNote.id}/`, {
-//         content: editorContent,
-//       });
-//       const updated = response.data;
-//       setNotes((prev) => prev.map((n) => (n.id === updated.id ? updated : n)));
-//       toast.success("Saved.");
-//       setEditorContent(updated.content);
-//     } catch {
-//       toast.error("Failed to save note.");
-//     } finally {
-//       setIsSaving(false);
-//     }
-//   }
-
-//   // ─── Delete existing note ───────────────────────────────────────────────────
-//   async function handleDeleteNote() {
-//     if (!selectedNote) return;
-//     const idToDelete = selectedNote.id;
-//     try {
-//       await api.delete(`/notes/${idToDelete}/`);
-//       toast.success("Deleted.");
-//       const remaining = notes.filter((n) => n.id !== idToDelete);
-//       setNotes(remaining);
-//       // After deletion, go back to “create new” mode with empty textarea
-//       setSelectedNote(null);
-//       setEditorContent("");
-//       setIsCreatingNew(true);
-//     } catch {
-//       toast.error("Failed to delete note.");
-//     }
-//   }
-
-//   // ─── Render ──────────────────────────────────────────────────────────────────
-//   return (
-//     <SidebarProvider>
-//       <AppSidebar />
-
-//       <SidebarInset className="h-screen">
-//         <div className="flex h-full flex-col">
-//           {/* Header with SidebarTrigger + ModeToggle + Logout */}
-//           <header className="flex h-16 items-center justify-between border-b border-gray-200 dark:border-gray-700 px-6">
-//             <div className="flex items-center space-x-2">
-//               <SidebarTrigger />
-//               <ModeToggle />
-//             </div>
-//             <Button variant="ghost" size="sm" onClick={logout}>
-//               Log out
-//             </Button>
-//           </header>
-
-//           {/* Resizable Panels: Sidebar vs. Main Editor */}
-//           <div className="flex flex-1 overflow-hidden">
-//             <ResizablePanelGroup direction="horizontal" className="flex-1">
-//               {/* ─── Sidebar Panel ─────────────────────────────────────────────── */}
-//               <ResizablePanel defaultSize={25} minSize={15} className="border-r border-gray-200 dark:border-gray-700 flex flex-col">
-//                 <div className="px-4 py-3 flex items-center justify-between border-b border-gray-200 dark:border-gray-700">
-//                   <h2 className="text-lg font-semibold">Your Notes</h2>
-//                   <Button
-//                     size="icon"
-//                     variant="outline"
-//                     onClick={handleStartNew}
-//                     disabled={isSaving}
-//                   >
-//                     <PlusIcon className="h-5 w-5" />
-//                     <span className="sr-only">New note</span>
-//                   </Button>
-//                 </div>
-
-//                 <ScrollArea className="flex-1 px-2 py-2">
-//                   {isLoadingNotes ? (
-//                     <p className="text-center text-sm text-gray-500">Loading…</p>
-//                   ) : notes.length === 0 ? (
-//                     <p className="text-center text-sm text-gray-500">
-//                       No notes yet. Click “+” to create one.
-//                     </p>
-//                   ) : (
-//                     <ul className="space-y-1">
-//                       {notes.map((note) => (
-//                         <li key={note.id}>
-//                           <button
-//                             onClick={() => handleSelectNote(note)}
-//                             className={`w-full text-left px-3 py-2 rounded-md transition 
-//                               ${
-//                                 selectedNote?.id === note.id && !isCreatingNew
-//                                   ? "bg-gray-200 dark:bg-gray-700"
-//                                   : "hover:bg-gray-100 dark:hover:bg-gray-800"
-//                               }`}
-//                           >
-//                             <span className="block truncate">
-//                               {note.content.trim() !== ""
-//                                 ? note.content.slice(0, 20) +
-//                                   (note.content.length > 20 ? "…" : "")
-//                                 : "(empty)"}
-//                             </span>
-//                             <span className="text-xs text-gray-500 dark:text-gray-400">
-//                               {new Date(note.updated_at).toLocaleDateString("en-US", {
-//                                 year: "numeric",
-//                                 month: "short",
-//                                 day: "numeric",
-//                               })}
-//                             </span>
-//                           </button>
-//                         </li>
-//                       ))}
-//                     </ul>
-//                   )}
-//                 </ScrollArea>
-//               </ResizablePanel>
-
-//               <ResizableHandle withHandle />
-
-//               {/* ─── Main Editor Panel ──────────────────────────────────────────── */}
-//               <ResizablePanel defaultSize={75} className="flex flex-col">
-//                 {isCreatingNew ? (
-//                   // ─── Always-empty textarea for “create new” mode ───────────────
-//                   <div className="flex h-full flex-col p-6">
-//                     <Textarea
-//                       className="min-h-[200px] flex-1 resize-none rounded-md border border-gray-300 dark:border-gray-600 p-4 focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:bg-gray-800 dark:text-gray-100"
-//                       placeholder="Type your new note here..."
-//                       value={editorContent}        // bound to editorContent (always "")
-//                       onChange={(e) => setEditorContent(e.target.value)}
-//                     />
-//                     <div className="mt-4 flex justify-end space-x-2">
-//                       <Button
-//                         variant="outline"
-//                         size="sm"
-//                         onClick={() => {
-//                           setEditorContent("");
-//                           setIsCreatingNew(false);
-//                         }}
-//                         disabled={isSaving}
-//                       >
-//                         Cancel
-//                       </Button>
-//                       <Button
-//                         size="sm"
-//                         onClick={handleSubmitNew}
-//                         disabled={isSaving}
-//                       >
-//                         {isSaving ? "Saving…" : "Submit"}
-//                       </Button>
-//                     </div>
-//                   </div>
-//                 ) : !selectedNote ? (
-//                   // ─── Placeholder when not creating and no note selected ───
-//                   <div className="flex h-full items-center justify-center">
-//                     <p className="text-gray-500 dark:text-gray-400">
-//                       Select a note or click “+” to create one.
-//                     </p>
-//                   </div>
-//                 ) : (
-//                   // ─── Edit existing note ───────────────────────────────────
-//                   <div className="flex h-full flex-col p-6">
-//                     <Textarea
-//                       className="min-h-[200px] flex-1 resize-none rounded-md border border-gray-300 dark:border-gray-600 p-4 focus:ring-2 focus:ring-indigo-500 focus:outline-none dark:bg-gray-800 dark:text-gray-100"
-//                       placeholder="Type your note here..."
-//                       value={editorContent}
-//                       onChange={(e) => setEditorContent(e.target.value)}
-//                     />
-//                     <div className="mt-4 flex justify-end space-x-2">
-//                       <Button
-//                         variant="destructive"
-//                         size="sm"
-//                         onClick={handleDeleteNote}
-//                         disabled={isSaving}
-//                       >
-//                         Delete
-//                       </Button>
-//                       <Button
-//                         size="sm"
-//                         onClick={handleSaveNote}
-//                         disabled={isSaving}
-//                       >
-//                         {isSaving ? "Saving…" : "Save"}
-//                       </Button>
-//                     </div>
-//                   </div>
-//                 )}
-//               </ResizablePanel>
-//             </ResizablePanelGroup>
-//           </div>
-//         </div>
-//       </SidebarInset>
-//     </SidebarProvider>
-//   );
-// }
-export default function note(){
-
-  return(
-    <div>
-      
-    </div>
-  )
+  return (
+    <SidebarProvider>
+      {/* <AppSidebar /> */}
+      <SidebarInset className="h-screen">
+        <div className="flex h-full flex-col">
+          <header className="flex h-16 items-center justify-between border-b px-6">
+            <div className="flex items-center space-x-2">
+              {/* <SidebarTrigger /> */}
+              <ModeToggle />
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => {/* logout logic */}}>
+              Log out
+            </Button>
+          </header>
+          <div className="flex flex-1 overflow-hidden">
+            <ResizablePanelGroup direction="horizontal" className="flex-1">
+              <ResizablePanel defaultSize={25} minSize={15} className="border-r flex flex-col">
+                <div className="px-4 py-3 flex items-center justify-between border-b">
+                  <h2 className="text-lg font-semibold">Your Notes</h2>
+                  <Button size="icon" variant="outline" onClick={startNew} disabled={isSaving}>
+                    <PlusIcon className="h-5 w-5" />
+                    <span className="sr-only">New note</span>
+                  </Button>
+                </div>
+                <ScrollArea className="flex-1 px-2 py-2">
+                  {isLoadingNotes ? (
+                    <p className="text-center text-sm">Loading…</p>
+                  ) : notes.length === 0 ? (
+                    <p className="text-center text-sm">No notes yet. Click “+” to create one.</p>
+                  ) : (
+                    <ul className="space-y-1">
+                      {notes.map(note => (
+                        <li key={note.id} className="bg-transparent hover:text-blue-700 font-bold transition duration-200">
+                          <button
+                            onClick={() => selectNote(note)}
+                            className={`w-full text-left px-3 py-2 rounded-md transition 
+                              ${selectedNote?.id === note.id && !isCreatingNew ? "bg-gray-200" : "hover:bg-gray-100"}`}
+                          >
+                            <span className="block truncate font-medium ">{note.title}</span>
+                            <span className="text-xs text-gray-500 italic">
+                              {(note.updated_at ? new Date(note.updated_at) : new Date(note.created_at)).toLocaleDateString()}
+                            </span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </ScrollArea>
+              </ResizablePanel>
+              <ResizableHandle withHandle />
+              <ResizablePanel defaultSize={75} className="flex flex-col">
+                <div className="flex h-full flex-col p-6">
+                  <input
+                    className="text-2xl font-semibold mb-4 p-2 border rounded"
+                    placeholder="Title (optional)"
+                    value={editorTitle}
+                    onChange={e => setEditorTitle(e.target.value)}
+                  />
+                  <div className="flex-1 mb-4">
+                    <Suspense fallback={<div className="text-center">Loading editor...</div>}>
+                      <MDEditor
+                        value={editorContent}
+                        onChange={(value) => setEditorContent(value ?? "")}
+                        preview="edit"
+                      />
+                    </Suspense>
+                  </div>
+                  <div className="flex justify-end space-x-2">
+                    {isCreatingNew ? (
+                      <>
+                        <Button variant="outline" size="sm" onClick={startNew} disabled={isSaving}>
+                          Cancel
+                        </Button>
+                        <Button size="sm" onClick={submitNew} disabled={isSaving}>
+                          {isSaving ? "Saving…" : "Submit"}
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button variant="destructive" size="sm" onClick={deleteNote} disabled={isSaving}>
+                          Delete
+                        </Button>
+                        <Button size="sm" onClick={saveNote} disabled={isSaving}>
+                          {isSaving ? "Saving…" : "Save"}
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          </div>
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
+  );
 }
