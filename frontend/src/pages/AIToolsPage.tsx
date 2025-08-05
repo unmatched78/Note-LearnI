@@ -21,6 +21,8 @@ import { Link } from "react-router-dom";
 import { BookOpen, FileText, Upload, Zap, LogOut } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { UserButton, useClerk} from "@clerk/clerk-react";
+import { AppSidebar } from "@/components/app-sidebar";
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 interface Resource { id: number; name: string; type: string; }
 
 type QuizQuestion = { question: string; options: string[]; answer: string };
@@ -70,10 +72,16 @@ export default function AIToolsPage() {
   const cardAccent = "border-l-4 border-purple-500 hover:shadow-lg transition";
 
   return (
+    <SidebarProvider>
+          <AppSidebar />
+           <SidebarInset className="h-screen">
     <div className="min-h-screen flex flex-col bg-background">
       {/* Header */}
       <header className="bg-card shadow px-6 py-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-purple-700">AI Study Hub</h1>
+        <div className="flex flex-row justify-between items-center gap-5">
+          <SidebarTrigger/>
+        <h1 className="text-2xl ml-0 font-bold text-purple-700">NoteLearn</h1>
+        </div>
         <nav className="flex items-center gap-4">
           {[
             { to: "/dashboard", icon: FileText, label: "Dashboard" },
@@ -101,6 +109,7 @@ export default function AIToolsPage() {
             <LogOut className="h-5 w-5 text-red-600" />
           </Button>
         </nav>
+        
       </header>
 
       <div className="flex flex-1 overflow-hidden">
@@ -312,5 +321,7 @@ export default function AIToolsPage() {
         </main>
       </div>
     </div>
+            </SidebarInset>
+    </SidebarProvider>
   );
 }
