@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import FlashcardsList from "@/components/FlashcardsList";
 import MarkdownDisplay from "@/components/MarkdownDisplay";
 import TranscriptDisplay from "@/components/TranscriptDisplay";
-import SidebarContainer from "@/components/SidebarContainer";
+// import SidebarContainer from "@/components/SidebarContainer";
 import { Link } from "react-router-dom";
 import { BookOpen, FileText, Upload, Zap, LogOut } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -161,7 +161,6 @@ export default function AIToolsPage() {
 
         {/* Main */}
         <main className="flex-1 p-8 overflow-auto">
-          <SidebarContainer />
 
           {!generatedContent ? (
             <Card className={`${cardAccent}`}>
