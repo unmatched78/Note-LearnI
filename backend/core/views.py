@@ -1,6 +1,5 @@
 from rest_framework import viewsets, status, permissions
 from rest_framework.parsers import MultiPartParser,JSONParser
-from rest_framework.response import Response
 from core.auth.authentication import ClerkAuthentication as JWTAuthentication
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
@@ -18,9 +17,22 @@ from .auth import authemail, authentication, webhooks
 from .utils.summarize import generate_summary
 from .utils.transcribe import transcribe_media
 from .utils.flashcard import generate_flashcards
+# Import Clerk SDK for API calls
+from core.auth.authentication import clerk_sdk
+from rest_framework import mixins, viewsets
+from rest_framework.response import Response
+from .api.pagination import StandardResultsSetPagination
 logger = logging.getLogger(__name__)
 User = get_user_model()
-
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+#we have to create a viewset for register
+#here we are using the default user model
+MAX_FILE_SIZE_MB = 19
+# Import the CloudinaryImage and CloudinaryVideo methods for the simplified syntax used in this guide
+from cloudinary import CloudinaryImage
+from cloudinary import CloudinaryVideo
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -29,16 +41,27 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"], permission_classes=[IsAuthenticated])
     def me(self, request):
         # request.user is using Django user with a clerk_id
-        # pull Clerk’s metadata if any:
-        data = clerk.users.get_user(user_id=request.user.clerk_id)
-        serializer = self.get_serializer(request.user)
-        return Response({
-            "user": serializer.data,
-            "clerk_profile": {
+        # pull Clerk's metadata if any:
+        try:
+            data = clerk_sdk.users.get_user(user_id=request.user.clerk_id)
+            clerk_profile = {
                 "email": data.email_addresses[0].email_address if data.email_addresses else None,
                 "first_name": data.first_name if data.first_name else None,
                 "last_name": data.last_name if data.last_name else None,
             }
+        except Exception as e:
+            logger.error(f"Failed to fetch Clerk user data: {e}")
+            # Return user data without Clerk profile if API call fails
+            clerk_profile = {
+                "email": None,
+                "first_name": None,
+                "last_name": None,
+            }
+        
+        serializer = self.get_serializer(request.user)
+        return Response({
+            "user": serializer.data,
+            "clerk_profile": clerk_profile
         })
 
     def handle_exception(self, exc):
@@ -49,9 +72,6 @@ class UserViewSet(viewsets.ModelViewSet):
                 details={"error": "Username already exists"},
             )
         return super().handle_exception(exc)
-#we have to create a viewset for register
-#here we are using the default user model
-MAX_FILE_SIZE_MB = 19
 
 class DocumentViewSet(viewsets.ModelViewSet):
     queryset = Document.objects.all().order_by('-created_at')
@@ -125,9 +145,6 @@ class QuizViewSet(viewsets.ReadOnlyModelViewSet):
         
         return Response({"quiz_id": quiz.id, "questions": questions_wrapper.get("questions", [])})
 
-from rest_framework import mixins, viewsets
-from rest_framework.response import Response
-from .pagination import StandardResultsSetPagination
 class ResourceSearch(mixins.ListModelMixin,viewsets.GenericViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes     = [IsAuthenticated]

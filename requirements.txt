@@ -12,12 +12,14 @@ requests
 python-pptx
 djangorestframework 
 djangorestframework-simplejwt
+django-cloudinary-storage[video]
+django-filter
+django-cloudinary-storage
 django-cors-headers==4.6.0
 sqlparse==0.5.1
 virtualenv==20.26.6
 watchfiles
 whitenoise
-django-cloudinary-storage
 django-shortuuidfield
 svix
 clerk-backend-api

@@ -140,12 +140,12 @@ REST_FRAMEWORK = {
 
 #cloudinary
 # Cloudinary configuration
-# CLOUDINARY_STORAGE = {
-#     'CLOUD_NAME': '',
-#     'API_KEY': '',
-#     'API_SECRET': '',
-#     'RESOURCE_TYPE': '',  # For non-image files like PDFs
-# }
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME':os.getenv('CLOUDINARY_CLOUD_NAME'), #'your-cloud-name'
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),#'your-api-key'
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'), #'your-api-secret',
+    'RESOURCE_TYPE': os.getenv('CLOUDINARY_RESOURCE_TYPE'),  # For non-image files like PDFs e.;raw
+}
 
 # # Use Cloudinary for media storage
 # DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
@@ -166,18 +166,29 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # for collectstatic
-#for collectstatic whitenoise
-# STATICFILES_STORAGE = 'whitenoise.sto
-# rage.CompressedManifestStaticFilesStorage'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'), # This is a common location for project-wide static files
-]
-# Media files (uploaded images, videos)
+# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # for collectstatic
+# #for collectstatic whitenoise
+# # STATICFILES_STORAGE = 'whitenoise.sto
+# # rage.CompressedManifestStaticFilesStorage'
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'static'), # This is a common location for project-wide static files
+# ]
+# # Media files (uploaded images, videos)
 
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+# MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+STORAGES = {
+  'default': {
+    #'BACKEND': 'cloudinary_storage.storage.MediaCloudinaryStorage' # or any media storage you'd like to use.
+    'BACKEND': 'cloudinary_storage.storage.RawMediaCloudinaryStorage'
+  },
+  'staticfiles': {                                                 # this is the storage for static files
+    # 'BACKEND': 'django.core.files.storage.FileSystemStorage'       # this is django's default storage for static files, for using cloudinry as static files storage see usage with static files section
+    'BACKEND': 'cloudinary_storage.storage.StaticHashedCloudinaryStorage'
+  },
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -210,3 +221,9 @@ SIMPLE_JWT = {
     'TOKEN_TYPE_CLAIM': 'token_type',
     'JTI_CLAIM': 'jti',
 }
+
+# Clerk Configuration
+# These should be set in your environment variables for security
+CLERK_SECRET_KEY = os.getenv('CLERK_SECRET_KEY', '')
+CLERK_JWT_KEY = os.getenv('CLERK_JWT_KEY', '')
+CLERK_FRONTEND_ORIGIN = os.getenv('CLERK_FRONTEND_ORIGIN', 'http://localhost:5173')

@@ -7,6 +7,7 @@ import json
 from django.utils import timezone
 from shortuuidfield import ShortUUIDField
 from django.conf import settings
+# from cloudinary.models import CloudinaryField
 from django.contrib.postgres.indexes import GinIndex
 User= settings.AUTH_USER_MODEL
 
@@ -46,28 +47,12 @@ class Document(Timer):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     notes=models.TextField(blank=True, null=True)
-    file = models.FileField(upload_to='documents/')
+    file = models.ImageField(upload_to='documents/') #use cloudinary
     description = models.TextField(blank=True, null=True)
     code = models.CharField(max_length=50,null=True, unique=True, help_text="Unique code for the document")
 
     def __str__(self):
         return f"{self.title} by {self.user}"
-
-    
-# class Quiz(Timer):
-#     """
-#     Model representing an AI-generated quiz for a given document.
-#     """
-#     quiz_title=models.CharField(max_length=200, help_text="Title of the quiz attempt", null=True, blank=True)
-#     document = models.ForeignKey(Document, on_delete=models.CASCADE, null=True, blank=True)
-#     generated_by = models.ForeignKey(User, on_delete=models.CASCADE, help_text="User who triggered the quiz generation")
-#     # Structure example: [{'question': 'What is ...?', 'choices': ['A', 'B', 'C'], 'correct': 'B'}, ...]
-#     questions = models.JSONField(help_text="Quiz questions and choices in JSON format")
-
-#     def __str__(self):
-#         return f"{self.quiz_title} for {self.document.title}"
-
-
 
 class Quiz(Timer):
     """
@@ -187,7 +172,7 @@ class Transcript(Timer):
     """
     module = models.ManyToManyField('Module', blank=True, related_name='transcripts')
     media_url = models.URLField(null=True, blank=True, help_text="URL of the media file, thi swill be filled in case for a youtube video")
-    audio_file=models.FileField(upload_to='transcripts/', null=True, blank=True)
+    audio_file=models.FileField(upload_to='transcripts/', null=True, blank=True)#use cloudinary field
     generated_by = models.ForeignKey(User, on_delete=models.CASCADE)
     language = models.CharField(max_length=30, default='english')
     speaker_identification = models.BooleanField(default=False)

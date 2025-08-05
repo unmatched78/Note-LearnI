@@ -1,52 +1,13 @@
 # serializers.py
 from rest_framework import serializers
-from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError
-from rest_framework import serializers
 from .models import *
 from django.contrib.auth import get_user_model
-
 User = get_user_model()
 # users/serializers.py
 class UserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(
-        write_only=True,
-        required=True,
-        style={'input_type': 'password'},
-        min_length=8,
-        max_length=128
-    )
-    password2 = serializers.CharField(
-        write_only=True,
-        required=True,
-        style={'input_type': 'password'}
-    )
-    
     class Meta:
         model = User
-        fields = ['id', 'username', 'password', 'password2']
-    
-    def validate_password(self, value):
-        try:
-            # Enforce Django's password validators
-            validate_password(value)
-        except ValidationError as e:
-            raise serializers.ValidationError(list(e.messages))
-        return value
-    
-    def validate(self, attrs):
-        if attrs['password'] != attrs['password2']:
-            raise serializers.ValidationError({"password": "Passwords must match"})
-        return attrs
-    
-    def create(self, validated_data):
-        # Remove password2 before creating user
-        validated_data.pop('password2')
-        password = validated_data.pop('password')
-        user = User(**validated_data)
-        user.set_password(password)  # Hashes the password
-        user.save()
-        return user
+        fields = ['id', 'username']
 
 class AuthResponseSerializer(serializers.Serializer):
     tokens = serializers.DictField(child=serializers.CharField())
@@ -93,17 +54,7 @@ class ModuleSerializer(serializers.ModelSerializer):
         # Create module with the user who created it
         validated_data['created_by'] = self.context['request'].user
         return super().create(validated_data)
-        """
-        POST payload: {
-          "module_id": int,
-          "document_id": int,
-          "created_by": int,
-          "quiz": int,
-            "code": str,
-            "title": str,
-            "description": str
-        }
-        """             
+           
     def update(self, instance, validated_data):
         # Update the module instance with the provided data
         instance.title = validated_data.get('title', instance.title)
@@ -111,16 +62,6 @@ class ModuleSerializer(serializers.ModelSerializer):
         instance.code = validated_data.get('code', instance.code)
         instance.save()
         return instance
-        """        POST payload: {
-          "module_id": int,
-          "document_id": int,
-            "quiz": int,
-          "created_by": int,
-            "code": str,
-            "title": str,
-            "description": str
-        }
-        """     
     def validate_code(self, value):
         """
         Ensure the code is unique and not already used by another module.
