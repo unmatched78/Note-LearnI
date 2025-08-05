@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-  CardFooter,
+
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
@@ -20,8 +20,7 @@ import SidebarContainer from "@/components/SidebarContainer";
 import { Link } from "react-router-dom";
 import { BookOpen, FileText, Upload, Zap, LogOut } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
-import { UserButton } from "@clerk/clerk-react";
-
+import { UserButton, useClerk} from "@clerk/clerk-react";
 interface Resource { id: number; name: string; type: string; }
 
 type QuizQuestion = { question: string; options: string[]; answer: string };
@@ -33,6 +32,7 @@ type QuizFeedback = {
 };
 
 export default function AIToolsPage() {
+  const { signOut } = useClerk();
   const { fetchJson } = useApi();
   const [selectedResource, setSelectedResource] = useState<Resource | null>(
     null
@@ -95,7 +95,7 @@ export default function AIToolsPage() {
             variant="ghost"
             size="icon"
             className="hover:bg-red-100"
-            onClick={() => fetchJson("/auth/logout")}
+            onClick={() => signOut()}
           >
             <LogOut className="h-5 w-5 text-red-600" />
           </Button>
@@ -263,8 +263,8 @@ export default function AIToolsPage() {
                                 const bg = isCorrect
                                   ? "bg-green-100 text-green-800"
                                   : isSelected
-                                  ? "bg-red-100 text-red-800"
-                                  : "";
+                                    ? "bg-red-100 text-red-800"
+                                    : "";
                                 return (
                                   <li
                                     key={opt}
