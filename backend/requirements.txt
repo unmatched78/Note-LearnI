@@ -10,6 +10,7 @@ pillow
 psycopg2-binary
 requests
 python-pptx
+dj-database-url
 djangorestframework 
 djangorestframework-simplejwt
 django-cloudinary-storage[video]
