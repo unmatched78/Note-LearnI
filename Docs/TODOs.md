@@ -5,7 +5,7 @@
 - [x] Improve the landing Page UI [Partially done]
 - [ ] Correct and enforce linting and husky rules for auto correction
 - [ ] Correct typesafe issues
-- [ ] Implement cloudinary and django-storage-cloudinary for serving user uploaded media file in production; also make pre-hooks and co-direct chunking so that the doc chunks be saved in the backend to avoid frequent calling except on frontend for viewing docs for the client
+- [x] Implement cloudinary and django-storage-cloudinary for serving user uploaded media file in production; also make pre-hooks and co-direct chunking so that the doc chunks be saved in the backend to avoid frequent calling except on frontend for viewing docs for the client[partially]
 - [x] align the dashboard endpoint and allow real-time metrics fetching from the backend
 - [ ] make logic in backend for token usage per user counting and display it in the frontend dashboard
 - [x] align the dashboard endpoint and allow real-time metrics setting of calendar and planning of studies
