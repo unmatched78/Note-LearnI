@@ -6,7 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { LogOut, Plus, ChevronDown, ChevronUp } from 'lucide-react';
 import { ModeToggle } from '@/components/mode-toggle';
 import { useApi } from '@/api/api';
-import { useUser, useAuth, UserButton } from '@clerk/clerk-react';
+import { useAuth, UserButton } from '@clerk/clerk-react';
 
 interface QuizAttempt { id: number; quiz: { quiz_title: string }; score: number; total_questions: number; created_at: string; }
 interface Module { id: number; title: string; code: string; }
@@ -15,7 +15,6 @@ interface FlashcardSet { id: number; document: { title: string }; created_at: st
 interface SidebarContentProps { onProfileToggle: (open: boolean) => void; profileOpen: boolean; }
 
 export default function SidebarContent({ onProfileToggle, profileOpen }: SidebarContentProps) {
-    const { user } = useUser();
     const { signOut } = useAuth();
     const { fetchJson } = useApi();
 
@@ -73,8 +72,6 @@ export default function SidebarContent({ onProfileToggle, profileOpen }: Sidebar
             alert('Quiz added');
         } catch { alert('Failed to add quiz'); }
     };
-
-    const toggleProfile = () => { onProfileToggle(!profileOpen); };
 
     return (
         <div
@@ -139,6 +136,7 @@ export default function SidebarContent({ onProfileToggle, profileOpen }: Sidebar
                 <div className="flex items-center justify-between">
                     <div
                         className="flex items-center mb-4 cursor-pointer"
+                        onClick={() => onProfileToggle(!profileOpen)}
                     >
 
                         <UserButton />

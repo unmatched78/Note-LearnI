@@ -52,7 +52,7 @@ export default function SummaryDisplay({ title = "Summary", content }: SummaryDi
               </ReactMarkdown>
             </div>
 
-            
+
           </ScrollArea>
         </CardContent>
       </Card>

@@ -2,7 +2,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import LandingPage from "./pages/LandingPage";
-import QuizPage from "./pages/QuizPage";
 import HomePage from "./pages/Dashboard";
 import AuthPage from "./components/AuthPage";
 import AIToolsPanel from "./pages/AIToolsPage"
@@ -30,17 +29,7 @@ export default function App() {
         <Route path="/sign-in" element={<AuthPage mode="sign-in" />} />
         <Route path="/sign-up" element={<AuthPage mode="sign-up" />} />
 
-        {/* Protected: /quiz */}
-        <Route
-          path="/quiz"
-          element={
-            isSignedIn ? (
-              <QuizPage />
-            ) : (
-              <Navigate to="/sign-in" replace state={{ from: "/quiz" }} />
-            )
-          }
-        />
+      
 
         {/* Protected: /notes */}
         <Route
@@ -96,7 +85,7 @@ export default function App() {
           path="*"
           element={
             isSignedIn ? (
-              <Navigate to="/quiz" replace />
+              <Navigate to="/dashboard" replace />
             ) : (
               <Navigate to="/sign-in" replace />
             )

@@ -139,11 +139,11 @@ export default function LandingPage() {
                 <p className="text-muted-foreground">{feat.desc}</p>
               </motion.div>
             ))}
-             {/* <AnimatedBeamDemo /> */}
+            {/* <AnimatedBeamDemo /> */}
           </motion.div>
 
           {/* Only one beam demo */}
-          
+
         </main>
       </div>
     </div>

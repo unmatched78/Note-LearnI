@@ -2,7 +2,11 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { Color } from "three";
 
-export default function Globe() {
+interface GlobeProps {
+  className?: string;
+}
+
+export default function Globe({ className }: GlobeProps) {
   const mountRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -177,8 +181,8 @@ export default function Globe() {
         const mesh = obj as THREE.Mesh;
         if (mesh.geometry) mesh.geometry.dispose();
         if (mesh.material) {
-          const mat = mesh.material as any;
-          if (mat.map) mat.map.dispose();
+          const mat = mesh.material as THREE.Material | THREE.MeshPhongMaterial;
+          if ('map' in mat && mat.map) mat.map.dispose();
           mat.dispose();
         }
       });
@@ -188,5 +192,5 @@ export default function Globe() {
     };
   }, []);
 
-  return <div ref={mountRef} className="fixed inset-0 z-0" />;
+  return <div ref={mountRef} className={`fixed inset-0 z-0 ${className || ""}`} />;
 }

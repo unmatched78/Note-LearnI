@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Progress } from "@/components/ui/progress";
 import { AlertCircle, Wand2, Loader2 } from "lucide-react";
 import SummarizeTab from "@/components/aiToolsTabs/SummarizeTab";
 import TranscribeTab from "@/components/aiToolsTabs/TranscribeTab";
@@ -34,24 +33,7 @@ export default function AIToolsPanel({
 }: AIToolsPanelProps) {
   const [activeTab, setActiveTab] = useState<string>("summarize");
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
-  const [progress, setProgress] = useState<number>(0);
 
-  // Mock handler for non-AI tools
-  const handleProcess = (type: string) => {
-    setIsProcessing(true);
-    setProgress(0);
-    const interval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsProcessing(false);
-          onGenerateContent({ type, content: [] });
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 300);
-  };
 
   const renderTab = () => {
     switch (activeTab) {
@@ -60,21 +42,19 @@ export default function AIToolsPanel({
           <SummarizeTab
             selectedResource={selectedResource}
             onGenerateContent={onGenerateContent}
-          // isProcessing={isProcessing}
-          // onProcess={() => handleProcess("summarize")}
           />
         );
       case "transcribe":
         return (
           <TranscribeTab
-             selectedResource={selectedResource}
-              isProcessing={isProcessing && activeTab === "transcribe"} 
-            onGenerateContent={(payload) => { 
+            selectedResource={selectedResource}
+            isProcessing={isProcessing && activeTab === "transcribe"}
+            onGenerateContent={(payload) => {
               setIsProcessing(false);
               onGenerateContent(payload);
             }}
           />
-          
+
         );
       case "flashcards":
         return (
@@ -121,14 +101,10 @@ export default function AIToolsPanel({
       <CardFooter className="border-t p-4">
         {/* {isProcessing ? ( */}
         {activeTab !== "summarize" && isProcessing ? (
-          <div className="w-full space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="flex items-center gap-2">
-                <Loader2 className="h-3 w-3 animate-spin" /> Processing...
-              </span>
-              <span>{progress}%</span>
-            </div>
-            <Progress value={progress} className="h-1" />
+          <div className="w-full flex items-center justify-between text-sm">
+            <span className="flex items-center gap-2">
+              <Loader2 className="h-3 w-3 animate-spin" /> Processing...
+            </span>
           </div>
         ) : (
           <div className="w-full flex items-center justify-between text-sm text-muted-foreground">

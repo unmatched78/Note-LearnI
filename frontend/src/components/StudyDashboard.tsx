@@ -23,7 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useApi } from "@/api/api";
-import { Clock, Award, Plus } from "lucide-react";
+import { Clock, Award } from "lucide-react";
 
 interface StudyEvent { id: number; title: string; datetime: string; }
 interface Material { id: number; title: string; type: string; lastAccessed: string; }
@@ -232,8 +232,13 @@ export default function StudyDashboard() {
               </TabsList>
               <TabsContent value="calendar">
                 <Calendar
+                  mode="single"
                   selected={selectedDate}
-                  onSelect={setSelectedDate}
+                  onSelect={(date) => {
+                    if (date) {
+                      setSelectedDate(date);
+                    }
+                  }}
                   className="border"
                 />
               </TabsContent>

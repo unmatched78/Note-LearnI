@@ -25,7 +25,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 // Utility: normalize tags safely
-const normalizeTags = (tags: string[] | string | undefined): string[] => {
+const normalizeTags = (tags: string[] | string | null | undefined): string[] => {
   if (Array.isArray(tags)) return tags.filter(Boolean);
   if (typeof tags === "string")
     return tags.split(",").map((t) => t.trim()).filter(Boolean);

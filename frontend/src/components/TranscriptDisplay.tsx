@@ -97,13 +97,13 @@ export default function TranscriptDisplay({ transcript, summary, media_url }: Tr
                                 exit={{ height: 0, opacity: 0 }}
                                 transition={{ duration: 0.3 }}
                             >
-                                 <CardContent className="p-4 bg-gray-50">
-                  <div className="prose prose-sm prose-p:my-2">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}> 
-                      {summary}
-                    </ReactMarkdown>
-                  </div>
-                </CardContent>
+                                <CardContent className="p-4 bg-gray-50">
+                                    <div className="prose prose-sm prose-p:my-2">
+                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                            {summary}
+                                        </ReactMarkdown>
+                                    </div>
+                                </CardContent>
                             </motion.div>
                         )}
                     </AnimatePresence>

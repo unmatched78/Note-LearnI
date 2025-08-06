@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/resizable";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 // import { AppSidebar } from "@/components/app-sidebar";
-import { BookOpen, FileText, LogOut,Zap, Plus as PlusIcon } from "lucide-react";
+import { BookOpen, FileText, LogOut, Zap, Plus as PlusIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 // Lazy-load Markdown editor for React
 const MDEditor = lazy(() => import('@uiw/react-md-editor'));
@@ -132,35 +132,35 @@ export default function NotesPage() {
       <SidebarInset className="h-screen">
         <div className="flex h-full flex-col">
           <header className="bg-card shadow px-6 py-4 flex items-center justify-between">
-                  <h1 className="text-2xl font-bold text-purple-700">AI Study Hub</h1>
-                  <nav className="flex items-center gap-4">
-                    {[
-                      { to: "/dashboard", icon: FileText, label: "Dashboard" },
-                      { to: "/resources", icon: BookOpen, label: "Resources" },
-                      { to: "/ai-tools", icon: Zap, label: "AI Tools" },
-                      { to: "/notes", icon: FileText, label: "Notes" },
-                    ].map(({ to, icon: Icon, label }) => (
-                      <Link
-                        key={label}
-                        to={to}
-                        className="flex items-center gap-1 px-3 py-2 rounded hover:bg-muted transition text-muted-foreground"
-                      >
-                        <Icon size={18} />
-                        {label}
-                      </Link>
-                    ))}
-                    <UserButton />
-                    <ModeToggle />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="hover:bg-red-100"
-                      onClick={() => signOut()}
-                    >
-                      <LogOut className="h-5 w-5 text-red-600" />
-                    </Button>
-                  </nav>
-                </header>
+            <h1 className="text-2xl font-bold text-purple-700">AI Study Hub</h1>
+            <nav className="flex items-center gap-4">
+              {[
+                { to: "/dashboard", icon: FileText, label: "Dashboard" },
+                { to: "/resources", icon: BookOpen, label: "Resources" },
+                { to: "/ai-tools", icon: Zap, label: "AI Tools" },
+                { to: "/notes", icon: FileText, label: "Notes" },
+              ].map(({ to, icon: Icon, label }) => (
+                <Link
+                  key={label}
+                  to={to}
+                  className="flex items-center gap-1 px-3 py-2 rounded hover:bg-muted transition text-muted-foreground"
+                >
+                  <Icon size={18} />
+                  {label}
+                </Link>
+              ))}
+              <UserButton />
+              <ModeToggle />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="hover:bg-red-100"
+                onClick={() => signOut()}
+              >
+                <LogOut className="h-5 w-5 text-red-600" />
+              </Button>
+            </nav>
+          </header>
           {/* <header className="flex h-16 items-center justify-between border-b px-6">
             <div className="flex items-center space-x-2">
               {/* <SidebarTrigger /> 

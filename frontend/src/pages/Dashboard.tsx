@@ -6,13 +6,12 @@
 // //  * GET /api/attempts/          -> list quiz attempts
 // //  */
 // src/pages/HomePage.tsx
-import React, { useState, useEffect, ChangeEvent } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useUser, useAuth } from "@clerk/clerk-react";
 import { useApi } from "@/api/api";
 import ModuleGrid from "@/components/ModuleGrid";
 import StudyDashboard from "@/components/StudyDashboard";
-import AIToolsPanel from "@/components/AIToolsPanel";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Search,
   Plus,
@@ -79,6 +78,7 @@ const HomePage: React.FC = () => {
   const { isLoaded, user } = useUser();
   const { signOut } = useAuth();
   const { fetchJson } = useApi();
+  const navigate = useNavigate();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreateModuleOpen, setIsCreateModuleOpen] = useState(false);
@@ -94,29 +94,30 @@ const HomePage: React.FC = () => {
   const [selectedSubject, setSelectedSubject] = useState("All Subjects");
   const [selectedSemester, setSelectedSemester] = useState("This Semester");
 
-  useEffect(() => {
-    if (isLoaded && user) {
-      loadModules();
-      loadRecentDocuments();
-    }
-  }, [isLoaded, user]);
-
-  const loadModules = async () => {
+  const loadModules = useCallback(async () => {
     try {
       const data = await fetchJson<{ results: Module[] }>("/modules/");
       setModules(data.results);
     } catch (err) {
       console.error(err);
     }
-  };
-  const loadRecentDocuments = async () => {
+  }, [fetchJson]);
+
+  const loadRecentDocuments = useCallback(async () => {
     try {
       const data = await fetchJson<{ results: Document[] }>("/documents/");
       setRecentDocuments(data.results.slice(0, 5));
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [fetchJson]);
+
+  useEffect(() => {
+    if (isLoaded && user) {
+      loadModules();
+      loadRecentDocuments();
+    }
+  }, [isLoaded, user, loadModules, loadRecentDocuments]);
   const handleCreateModule = async () => {
     try {
       const created = await fetchJson<Module>("/modules/", {
@@ -134,11 +135,15 @@ const HomePage: React.FC = () => {
     e.preventDefault();
   };
   const handleSettingsSave = () => setIsSettingsOpen(false);
-  const handleProfileClick = () => {};
-  const handleNotificationClick = () => {};
-  const handleHelpClick = () => {};
-  const handleModuleClick = (id: string) => {};
-  const handleResourceClick = (id: string) => {};
+  const handleProfileClick = () => { };
+  const handleNotificationClick = () => { };
+  const handleHelpClick = () => { };
+  const handleModuleClick = (id: string) => {
+    navigate(`/modules/${id}`);
+  };
+  const handleResourceClick = (id: string) => {
+    navigate(`/resources/${id}`);
+  };
 
   if (!isLoaded) return <div>Loading...</div>;
 
@@ -472,7 +477,7 @@ const HomePage: React.FC = () => {
                             PDF
                           </Badge>
                           <span className="text-xs text-gray-600">
-                            Accessed {i + 1} day{ i > 0 ? "s" : "" } ago
+                            Accessed {i + 1} day{i > 0 ? "s" : ""} ago
                           </span>
                         </div>
                       ))}
@@ -499,7 +504,7 @@ const HomePage: React.FC = () => {
               <Label htmlFor="display-name">Display Name</Label>
               <Input
                 id="display-name"
-                defaultValue={user?.fullName || user?.username}
+                defaultValue={user?.fullName || user?.username || ""}
               />
             </div>
             <div className="grid gap-2">
@@ -507,7 +512,7 @@ const HomePage: React.FC = () => {
               <Input
                 id="email"
                 type="email"
-                defaultValue={user?.primaryEmailAddress?.emailAddress}
+                defaultValue={user?.primaryEmailAddress?.emailAddress || ""}
               />
             </div>
             <div className="grid gap-2">
@@ -525,7 +530,7 @@ const HomePage: React.FC = () => {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="theme">Theme</Label>
-                  <ModeToggle />
+              <ModeToggle />
             </div>
           </div>
           <DialogFooter>
