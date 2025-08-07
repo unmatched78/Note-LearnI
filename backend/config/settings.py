@@ -218,7 +218,7 @@ CORS_ALLOW_METHODS = [
 # CORS settings for Clerk
 CORS_ALLOWED_ORIGINS = [
     #'http://localhost:5173',  # Replace with your frontend URL
-    os.getenv('CLERK_FRONTEND_ORIGIN'),  # Replace with your production frontend URL
+    os.getenv('CLERK_FRONTEND_ORIGIN', 'http://localhost:5173').rstrip("/"),  # Replace with your production frontend URL
 ]
 # File upload settings
 FILE_UPLOAD_MAX_MEMORY_SIZE = 20 * 1024 * 1024  # 20MB
