@@ -114,7 +114,7 @@ export default function Globe({ className }: GlobeProps) {
 
 
     let ci = 0, ni = 1, t = 0;
-    const speed = 0.005;
+    const speed = 0.02;
     const lerpColor = (a: Color, b: Color, f: number) =>
       new Color(a.r + (b.r - a.r) * f, a.g + (b.g - a.g) * f, a.b + (b.b - a.b) * f);
 
