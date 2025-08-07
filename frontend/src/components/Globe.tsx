@@ -13,8 +13,8 @@ export default function Globe({ className }: GlobeProps) {
     if (!mountRef.current) return;
 
     // 1) Scene, camera, renderer
-    const scene    = new THREE.Scene();
-    const camera   = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.z = 10;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -92,13 +92,26 @@ export default function Globe({ className }: GlobeProps) {
     scene.add(pointLight);
 
     // 7) Color cycle
-    const palette = [
-      new Color(0x3a86ff),
-      new Color(0x8338ec),
-      new Color(0xff006e),
-      new Color(0xfb5607),
-      new Color(0xffbe0b)
-    ];
+    // const palette = [
+    //   new Color(0x3a86ff),
+    //   new Color(0x8338ec),
+    //   new Color(0xff006e),
+    //   new Color(0xfb5607),
+    //   new Color(0xffbe0b)
+    // ];
+    const generateGradientPalette = (count: number): Color[] => {
+      const colors: Color[] = [];
+      for (let i = 0; i < count; i++) {
+        const hue = (i / count) * 360; // full hue wheel
+        const color = new Color();
+        color.setHSL(hue / 360, 1.0, 0.5); // full saturation, medium lightness
+        colors.push(color);
+      }
+      return colors;
+    };
+
+    const palette = generateGradientPalette(20); // change 20 to 50+ for more steps
+
     let ci = 0, ni = 1, t = 0;
     const speed = 0.005;
     const lerpColor = (a: Color, b: Color, f: number) =>
@@ -110,10 +123,10 @@ export default function Globe({ className }: GlobeProps) {
       animId = requestAnimationFrame(animate);
 
       // Auto-rotate
-      wireMesh.rotation.y  += 0.002;
+      wireMesh.rotation.y += 0.002;
       solidMesh.rotation.y += 0.002;
-      atmMesh.rotation.y   += 0.001;
-      stars.rotation.y     += 0.0005;
+      atmMesh.rotation.y += 0.001;
+      stars.rotation.y += 0.0005;
 
       // Color transition
       t += speed;
