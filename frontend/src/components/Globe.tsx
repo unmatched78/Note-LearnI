@@ -99,18 +99,19 @@ export default function Globe({ className }: GlobeProps) {
     //   new Color(0xfb5607),
     //   new Color(0xffbe0b)
     // ];
-    const generateGradientPalette = (count: number): Color[] => {
-      const colors: Color[] = [];
-      for (let i = 0; i < count; i++) {
-        const hue = (i / count) * 360; // full hue wheel
-        const color = new Color();
-        color.setHSL(hue / 360, 1.0, 0.5); // full saturation, medium lightness
+    const generateAllColors = (steps: number): THREE.Color[] => {
+      const colors: THREE.Color[] = [];
+      for (let i = 0; i < steps; i++) {
+        const hue = (i / steps) * 360; // full spectrum
+        const color = new THREE.Color();
+        color.setHSL(hue / 360, 1.0, 0.5); // vivid & balanced
         colors.push(color);
       }
       return colors;
     };
 
-    const palette = generateGradientPalette(20); // change 20 to 50+ for more steps
+    const palette = generateAllColors(100); // 100 = super smooth, full-spectrum
+
 
     let ci = 0, ni = 1, t = 0;
     const speed = 0.005;
