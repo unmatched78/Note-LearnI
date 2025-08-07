@@ -9,7 +9,7 @@ load_dotenv()
 # Configure Resend API key and sender email
 resend.api_key = os.getenv("RESEND_API_KEY")
 FROM_EMAIL = os.getenv("RESEND_SENDER_EMAIL") 
-print(resend.api_key)
+#print(resend.api_key)
 
 def send_authentication_email(user, request):
     """
