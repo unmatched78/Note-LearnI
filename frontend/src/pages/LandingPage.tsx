@@ -47,7 +47,7 @@ export default function LandingPage() {
           </div>
         }
       >
-        <Globe className="absolute inset-0 w-full h-full opacity-20" />
+        <Globe className="absolute inset-0 w-full h-full" />
       </Suspense>
 
       {/* Page Content — now scrollable */}

@@ -70,7 +70,7 @@ export default function Globe({ className }: GlobeProps) {
       color: 0x3a86ff,
       wireframe: true,
       transparent: true,
-      opacity: 0.9
+      opacity: 0.5
     });
     const wireMesh = new THREE.Mesh(wireGeo, wireMat);
     scene.add(wireMesh);
@@ -80,7 +80,7 @@ export default function Globe({ className }: GlobeProps) {
     const solidMat = new THREE.MeshPhongMaterial({
       color: 0x1a237e,
       transparent: true,
-      opacity: 0.8,
+      opacity: 0
     });
     const solidMesh = new THREE.Mesh(solidGeo, solidMat);
     scene.add(solidMesh);
@@ -130,6 +130,7 @@ export default function Globe({ className }: GlobeProps) {
       renderer.render(scene, camera);
     };
     animate();
+
 
     // 10) Resize handler
     const onResize = () => {
