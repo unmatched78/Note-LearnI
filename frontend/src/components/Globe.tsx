@@ -70,7 +70,7 @@ export default function Globe({ className }: GlobeProps) {
       color: 0x3a86ff,
       wireframe: true,
       transparent: true,
-      opacity: 0.5
+      opacity: 0.9
     });
     const wireMesh = new THREE.Mesh(wireGeo, wireMat);
     scene.add(wireMesh);
@@ -80,7 +80,7 @@ export default function Globe({ className }: GlobeProps) {
     const solidMat = new THREE.MeshPhongMaterial({
       color: 0x1a237e,
       transparent: true,
-      opacity: 0
+      opacity: 0.8,
     });
     const solidMesh = new THREE.Mesh(solidGeo, solidMat);
     scene.add(solidMesh);
@@ -130,38 +130,6 @@ export default function Globe({ className }: GlobeProps) {
       renderer.render(scene, camera);
     };
     animate();
-
-    // // 9) Load textures
-    // const loader = new THREE.TextureLoader();
-    // Promise.all([
-    //   loader.loadAsync("/earth-texture-compressed.jpg"),
-    //   loader.loadAsync("/earth-bump-compressed.jpg"),
-    //   loader.loadAsync("/earth-specular-compressed.jpg")
-    // ])
-    //   .then(([map, bumpMap, specMap]) => {
-    //     const hiMat = new THREE.MeshPhongMaterial({
-    //       map,
-    //       bumpMap,
-    //       bumpScale: 0.05,
-    //       specularMap: specMap,
-    //       specular: new Color("grey"),
-    //       transparent: true
-    //     });
-    //     const start = performance.now();
-    //     const duration = 1000;
-    //     const step = () => {
-    //       const f = Math.min((performance.now() - start) / duration, 1);
-    //       solidMesh.material = hiMat;
-    //       (solidMesh.material as THREE.MeshPhongMaterial).opacity = f;
-    //       wireMat.opacity = 0.5 * (1 - f);
-    //       if (f < 1) requestAnimationFrame(step);
-    //       else scene.remove(wireMesh);
-    //     };
-    //     step();
-    //   })
-    //   .catch((err) => {
-    //     console.warn("Texture load failed", err);
-    //   });
 
     // 10) Resize handler
     const onResize = () => {

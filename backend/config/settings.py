@@ -149,7 +149,7 @@ CLOUDINARY_STORAGE = {
     'CLOUD_NAME':os.getenv('CLOUDINARY_CLOUD_NAME'), #'your-cloud-name'
     'API_KEY': os.getenv('CLOUDINARY_API_KEY'),#'your-api-key'
     'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'), #'your-api-secret',
-    'RESOURCE_TYPE': os.getenv('CLOUDINARY_RESOURCE_TYPE'),  # For non-image files like PDFs e.;raw
+    'RESOURCE_TYPE': os.getenv('CLOUDINARY_RESOURCE_TYPE'),  # For non-image files like PDFs e.g;raw
 }
 
 # # Use Cloudinary for media storage
@@ -199,7 +199,27 @@ STORAGES = {
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'  
-CORS_ALLOW_ALL_ORIGINS = True 
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_CREDENTIALS = True
+# CORS settings
+CORS_ALLOW_HEADERS = [
+    'authorization ', # Ensure no trailing space
+    'content-type',
+    'x-csrftoken', # For CSRF protection
+    'x-requested-with', # For AJAX requests
+]
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+    'PUT',
+    'DELETE',
+    'OPTIONS',
+]
+# CORS settings for Clerk
+CORS_ALLOWED_ORIGINS = [
+    #'http://localhost:5173',  # Replace with your frontend URL
+    os.getenv('CLERK_FRONTEND_ORIGIN'),  # Replace with your production frontend URL
+]
 # File upload settings
 FILE_UPLOAD_MAX_MEMORY_SIZE = 20 * 1024 * 1024  # 20MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 20 * 1024 * 1024  # 20MB
